@@ -3,6 +3,32 @@
   border-radius: 10px;
 }
 
+.section-sidebar {
+  background-color: alpha(@window_fg_color, 0.035);
+}
+
+.section-sidebar stacksidebar {
+  background: transparent;
+  border: none;
+}
+
+.section-sidebar list {
+  background: transparent;
+  padding: 4px 10px;
+}
+
+.section-sidebar row {
+  border-radius: 9px;
+  margin: 2px 0;
+  padding: 10px 12px;
+  font-weight: 500;
+}
+
+.section-sidebar row:selected {
+  background-color: alpha(@accent_bg_color, 0.16);
+  color: @accent_color;
+}
+
 .thumb picture {
   border-radius: 8px;
 }

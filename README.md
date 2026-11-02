@@ -122,16 +122,27 @@ see the [PyGObject system dependency table](https://pygobject.gnome.org/guide/sy
 
 ## How to use it
 
+The control panel has a sidebar with separate **Wallpaper**, **Appearance**,
+**Widgets**, **Screen**, and **Tools** pages. Each page keeps its own scroll position
+and entered settings while you navigate. On narrow windows the sidebar folds away;
+use the sidebar button in the header to open it.
+
 1. **Pick a folder.** The app comes with 16 wallpapers to start with;
     *Change folder…* points it at your own pictures and videos instead.
     Click *Refresh* beside it after downloading new wallpapers into that folder.
 2. **Click a wallpaper.** The desktop changes and every open app takes its colours within a second.
    You can also drop a picture onto the window, or use *Open a file…*.
-3. **Choose light, dark or auto** under *Colours*. Auto is light from 07:00 and dark from 19:00.
+3. **Choose light, dark or auto** under *Appearance → Colours*. Auto is light from 07:00 and dark from 19:00.
 4. **Optional:** a new random wallpaper every few hours, see-through windows, the wallpaper on your
    lock screen, and *Keep screen awake* while you read or watch something.
 
-To undo everything, open the menu (⋮) and choose *Restore original look*.
+To undo everything, use *Tools → Restore original look* or the window menu.
+
+Wallpaper colours are grouped perceptually in OKLab, so similar shades contribute
+together and tiny colour specks do not dominate the accent. Muted wallpapers retain
+softer accents, transparent pixels are filtered out, and generated light/dark text
+colours are checked against their theme surfaces. Run `trpstrata apply` to refresh
+an existing cached palette after upgrading; no wallpaper reselection is needed.
 
 ### Folder icons, top bar and dock colours
 

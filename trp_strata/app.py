@@ -66,7 +66,7 @@ def swatch(colour):
 
 class Window(Adw.ApplicationWindow):
     def __init__(self, app):
-        super().__init__(application=app, title="trpStrata", default_width=900, default_height=780)
+        super().__init__(application=app, title="trpStrata", default_width=1040, default_height=760)
         self.pool = concurrent.futures.ThreadPoolExecutor(max_workers=2)
         self.widget_pool = concurrent.futures.ThreadPoolExecutor(max_workers=1)
         self.thumbs = {}            # path -> button in the grid
@@ -78,18 +78,40 @@ class Window(Adw.ApplicationWindow):
         self.config = core.load_config()
 
         self.toasts = Adw.ToastOverlay()
+        self.navigation = Adw.Flap(fold_policy=Adw.FlapFoldPolicy.AUTO,
+                                   fold_threshold_policy=Adw.FoldThresholdPolicy.NATURAL,
+                                   vexpand=True)
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         box.append(self.build_header())
-        scroller = Gtk.ScrolledWindow(vexpand=True, hscrollbar_policy=Gtk.PolicyType.NEVER)
-        clamp = Adw.Clamp(maximum_size=860, tightening_threshold=600)
-        page = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=28,
-                       margin_top=24, margin_bottom=32, margin_start=16, margin_end=16)
-        page.append(self.build_now())
-        page.append(self.build_library())
-        page.append(self.build_options())
-        clamp.set_child(page)
-        scroller.set_child(clamp)
-        box.append(scroller)
+        self.pages = Gtk.Stack(vexpand=True, hexpand=True, hhomogeneous=False, vhomogeneous=False,
+                               transition_type=Gtk.StackTransitionType.CROSSFADE, transition_duration=150)
+        self.section_pages = {}
+        now, library = self.build_now(), self.build_library()
+        groups = self.build_options()
+        palette_group = Adw.PreferencesGroup(title="Wallpaper palette", description="Colours extracted from your current background.")
+        palette_group.add(self.palettes)
+        self.add_section("wallpaper", "Wallpaper", "Choose your background and how often it changes.",
+                         now, library, groups["rotation"])
+        self.add_section("appearance", "Appearance", "Match your applications and terminal to your wallpaper.",
+                         palette_group, groups["appearance"])
+        self.add_section("widgets", "Widgets", "Arrange your desktop and configure individual widgets.", groups["widgets"])
+        self.add_section("screen", "Screen", "Manage keep-awake behaviour and your lock screen.", groups["screen"])
+        self.add_section("tools", "Tools", "Reapply your theme or restore your original desktop.", self.build_tools())
+        self.sidebar = Gtk.StackSidebar(stack=self.pages, vexpand=True)
+        self.sidebar.add_css_class("navigation-sidebar")
+        sidebar_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, width_request=190)
+        sidebar_box.add_css_class("section-sidebar")
+        sidebar_box.append(Gtk.Label(label="PERSONALIZE", xalign=0, margin_start=20, margin_top=20,
+                                     margin_bottom=12, css_classes=["caption", "dim-label"]))
+        sidebar_box.append(self.sidebar)
+        self.navigation.set_flap(sidebar_box)
+        self.navigation.set_separator(Gtk.Separator(orientation=Gtk.Orientation.VERTICAL))
+        self.navigation.set_content(self.pages)
+        self.pages.connect("notify::visible-child-name", self.on_section_changed)
+        self.navigation.connect("notify::reveal-flap", lambda nav, _param:
+                                self.sidebar_toggle.set_active(nav.get_reveal_flap()))
+        self.on_section_changed(self.pages, None)
+        box.append(self.navigation)
         self.toasts.set_child(box)
         self.set_content(self.toasts)
 
@@ -110,6 +132,12 @@ class Window(Adw.ApplicationWindow):
 
     def build_header(self):
         header = Adw.HeaderBar()
+        self.sidebar_toggle = Gtk.ToggleButton(icon_name="sidebar-show-symbolic", active=True,
+                                               tooltip_text="Show or hide sections")
+        self.sidebar_toggle.connect("toggled", lambda button: self.navigation.set_reveal_flap(button.get_active()))
+        header.pack_start(self.sidebar_toggle)
+        self.section_title = Adw.WindowTitle(title="trpStrata", subtitle="Wallpaper")
+        header.set_title_widget(self.section_title)
         self.spinner = Gtk.Spinner()
         header.pack_start(self.spinner)
 
@@ -123,9 +151,47 @@ class Window(Adw.ApplicationWindow):
             self.add_action(action)
         return header
 
+    def add_section(self, name, title, description, *groups):
+        scroller = Gtk.ScrolledWindow(vexpand=True, hscrollbar_policy=Gtk.PolicyType.NEVER)
+        clamp = Adw.Clamp(maximum_size=820, tightening_threshold=600)
+        page = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=24,
+                       margin_top=28, margin_bottom=32, margin_start=24, margin_end=24)
+        heading = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        heading.append(Gtk.Label(label=title, xalign=0, css_classes=["title-1"]))
+        heading.append(Gtk.Label(label=description, xalign=0, wrap=True, css_classes=["dim-label"]))
+        page.append(heading)
+        for group in groups:
+            page.append(group)
+        clamp.set_child(page)
+        scroller.set_child(clamp)
+        self.pages.add_titled(scroller, name, title)
+        self.section_pages[name] = scroller
+
+    def on_section_changed(self, stack, _param):
+        child = stack.get_visible_child()
+        if child is not None:
+            self.section_title.set_subtitle(stack.get_page(child).get_title())
+        if self.navigation.get_folded():
+            self.navigation.set_reveal_flap(False)
+
+    def build_tools(self):
+        group = Adw.PreferencesGroup(title="Desktop tools")
+        for title, subtitle, label, action in (
+                ("Reapply colours", "Regenerate your theme from the current wallpaper", "Apply",
+                 lambda *_: self.run(lambda: core.apply_theme() or True)),
+                ("Restore original look", "Restore your original theme, terminal and wallpaper settings", "Restore", self.ask_restore),
+                ("About trpStrata", "Application information and licence", "About", self.about)):
+            row = Adw.ActionRow(title=title, subtitle=subtitle)
+            button = Gtk.Button(label=label, valign=Gtk.Align.CENTER)
+            button.connect("clicked", action)
+            row.add_suffix(button)
+            row.set_activatable_widget(button)
+            group.add(row)
+        return group
+
     def build_now(self):
-        row = Gtk.Box(spacing=24)
-        self.hero = Gtk.Picture(can_shrink=True, keep_aspect_ratio=True, width_request=384, height_request=216)
+        row = Gtk.Box(spacing=20)
+        self.hero = Gtk.Picture(can_shrink=True, keep_aspect_ratio=True, width_request=320, height_request=180)
         self.hero.add_css_class("hero")
         self.hero.add_css_class("card")
         self.hero.set_overflow(Gtk.Overflow.HIDDEN)
@@ -137,7 +203,6 @@ class Window(Adw.ApplicationWindow):
         info.append(self.title)
         info.append(self.subtitle)
         self.palettes = Gtk.Grid(row_spacing=6, column_spacing=6, margin_top=6)
-        info.append(self.palettes)
 
         buttons = Gtk.Box(spacing=8, margin_top=8)
         nxt = Gtk.Button(label="Next wallpaper", css_classes=["suggested-action", "pill"])
@@ -165,7 +230,7 @@ class Window(Adw.ApplicationWindow):
         self.library_group = group
 
         self.grid = Gtk.FlowBox(selection_mode=Gtk.SelectionMode.NONE, homogeneous=True,
-                                min_children_per_line=3, max_children_per_line=3,
+                                min_children_per_line=1, max_children_per_line=3,
                                 row_spacing=12, column_spacing=12, margin_top=6)
         self.empty = Adw.StatusPage(icon_name="folder-pictures-symbolic", title="No wallpapers here yet",
                                     description="Put pictures or videos in this folder, choose another "
@@ -176,8 +241,6 @@ class Window(Adw.ApplicationWindow):
         return group
 
     def build_options(self):
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=24)
-
         look = Adw.PreferencesGroup(title="Colours")
         mode_row = Adw.ActionRow(title="Light or dark",
                                  subtitle=f"Auto is light from {self.config['light_from']:02d}:00 "
@@ -196,8 +259,6 @@ class Window(Adw.ApplicationWindow):
         look.add(self.switch_row("See-through windows", "Let the wallpaper show behind app windows", "glass"))
         look.add(self.switch_row("Recolour the Terminal", "Adds a “trpStrata” profile to GNOME Terminal",
                                  "terminal"))
-        look.add(self.switch_row("Lock screen", "Show the wallpaper when the screen is locked", "lock_screen"))
-        box.append(look)
 
         widgets = Adw.PreferencesGroup(title="Desktop widgets",
                                        description="Each widget has its own switch. Arrange cards on the desktop or style them in widgets.css.")
@@ -215,7 +276,7 @@ class Window(Adw.ApplicationWindow):
             row.add_suffix(spin)
             self.grid_spins[key] = spin
             widgets.add(row)
-        widgets.add(self.switch_row("Frosted widget glass", "Blur the wallpaper behind translucent cards", "widget_blur"))
+        widgets.add(self.switch_row("Frosted widget glass", "Blur the wallpaper behind widgets using the glass style", "widget_blur"))
         blur_row = Adw.ActionRow(title="Glass blur strength", subtitle="Gaussian blur · 0 = off · 64 = strongest")
         self.blur_scale = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, 0, 64, 1)
         self.blur_scale.set_digits(0)
@@ -247,7 +308,6 @@ class Window(Adw.ApplicationWindow):
         apply.connect("clicked", lambda *_: self.save_logtime())
         row.add_suffix(apply)
         widgets.add(row)
-        box.append(widgets)
 
         auto = Adw.PreferencesGroup(title="Change automatically",
                                     description="Picks a random wallpaper from your folder.")
@@ -256,9 +316,9 @@ class Window(Adw.ApplicationWindow):
         self.update_rotation()
         combo.connect("notify::selected", self.on_rotation)
         auto.add(combo)
-        box.append(auto)
 
         screen = Adw.PreferencesGroup(title="Screen")
+        screen.add(self.switch_row("Lock-screen wallpaper", "Show the wallpaper when the screen is locked", "lock_screen"))
         self.awake_row = Adw.ComboRow(title="Keep screen awake",
                                       model=Gtk.StringList.new([label for _m, label in AWAKE_CHOICES]))
         self.awake_row.connect("notify::selected", self.on_awake)
@@ -282,10 +342,9 @@ class Window(Adw.ApplicationWindow):
         lock_row = Adw.ActionRow(title="Lock screen now", subtitle="Requires a non-empty lock-screen password")
         lock_row.add_suffix(lock_now)
         screen.add(lock_row)
-        box.append(screen)
         self.show_awake()
         GLib.timeout_add_seconds(30, self.show_awake)     # count down, and notice when it runs out
-        return box
+        return {"appearance": look, "widgets": widgets, "rotation": auto, "screen": screen}
 
     def lock_now(self):
         if not self.config.get("lock_password"):
