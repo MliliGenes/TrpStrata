@@ -150,11 +150,11 @@ def IconButton(name, *, label, on_click, **props):
     return Button(label, icon=name, tooltip=label, on_click=on_click, **props)
 
 
-def Search(text="", *, on_change, placeholder="Search…", class_name="", visible=True, expand=False, align="fill", key=None):
-    if not callable(on_change):
-        raise TypeError("Search needs an on_change callback")
+def Search(text="", *, on_change, on_submit=None, placeholder="Search…", class_name="", visible=True, expand=False, align="fill", key=None):
+    if not callable(on_change) or (on_submit is not None and not callable(on_submit)):
+        raise TypeError("Search needs an on_change callback and an optional on_submit callback")
     props = _props(class_name, visible, expand, align)
-    props.update(text=str(text), on_change=on_change, placeholder=str(placeholder))
+    props.update(text=str(text), on_change=on_change, on_submit=on_submit, placeholder=str(placeholder))
     return Element("search", props, key=key)
 
 
@@ -184,6 +184,27 @@ def Ring(value, *children, class_name="", visible=True, expand=False, align="cen
     return Element("ring", props, tuple(_children(children)), key)
 
 
+def Grid(*children, columns=("1fr",), rows=("auto",), spacing=0, class_name="", visible=True, expand=False, align="fill", key=None):
+    from .widget_styles import tracks
+    element = _box("grid", children, spacing, class_name, visible, expand, align, key)
+    return replace(element, props={**element.props, "columns": tracks(columns), "rows": tracks(rows)})
+
+
+def _styled(factory):
+    @wraps(factory)
+    def build(*args, style=None, **kwargs):
+        from .widget_styles import validate
+        element = factory(*args, **kwargs)
+        return replace(element, props={**element.props, "style": validate(style)})
+    return build
+
+
+# All primitive components share the same structured style contract.
+Column, Row, Text, Progress, Button, Icon, Search, Slider, Image, Ring, Grid = (
+    _styled(factory) for factory in (Column, Row, Text, Progress, Button, Icon, Search, Slider, Image, Ring, Grid))
+Box = Column
+
+
 def resolve(element, _depth=0):
     """Evaluate function components and validate the whole tree before touching GTK."""
     if _depth > 64:
@@ -198,10 +219,13 @@ def resolve(element, _depth=0):
         result = resolve(element.kind(**element.props), _depth + 1)
         return replace(result, key=element.key if element.key is not None else result.key,
                        identity=(element.kind, *result.identity))
-    if element.kind not in ("column", "row", "text", "progress", "button", "ring", "image", "icon", "search", "slider"):
+    if element.kind not in ("column", "row", "grid", "text", "progress", "button", "ring", "image", "icon", "search", "slider"):
         raise ValueError(f"Unknown element: {element.kind}")
     children = tuple(resolve(child, _depth + 1) for child in element.children)
     keys = [child.key for child in children if child.key is not None]
     if len(keys) != len(set(keys)):
         raise ValueError("Sibling components must have unique keys")
+    if element.kind == "grid":
+        from .widget_styles import grid_positions
+        grid_positions(children, len(element.props.get("style", {}).get("columns", element.props["columns"])))
     return replace(element, children=children)

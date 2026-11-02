@@ -11,6 +11,9 @@ from gi.repository import Gtk, Gdk, GdkPixbuf, GLib, Pango, PangoCairo  # noqa: 
 from .components import resolve  # noqa: E402
 from .gtk_icons import SvgIcon  # noqa: E402
 from .gtk_app_icons import AppIcon  # noqa: E402
+from .gtk_grid import Grid  # noqa: E402
+from .gtk_widget_styles import apply as apply_style, validate_tree  # noqa: E402
+from .widget_styles import grid_positions  # noqa: E402
 
 
 @dataclass
@@ -60,6 +63,13 @@ class Renderer:
             window.present_with_time(event.time)
             widget.grab_focus()
         return False
+
+    def search_submitted(self, mounted):
+        callback = mounted.element.props.get("on_submit")
+        if self.interactive and callback is not None:
+            callback(mounted.widget.get_text())
+            if self.on_action is not None:
+                self.on_action()
 
     @staticmethod
     def size_ring(area):
@@ -120,6 +130,7 @@ class Renderer:
 
     def render(self, element):
         tree = resolve(element)
+        validate_tree(tree)
         self.root = self._reconcile(tree, self.root)
         return self.root.widget
 
@@ -133,6 +144,8 @@ class Renderer:
         if mounted is None:
             if element.kind in ("column", "row"):
                 widget = Gtk.Box(orientation=Gtk.Orientation.VERTICAL if element.kind == "column" else Gtk.Orientation.HORIZONTAL)
+            elif element.kind == "grid":
+                widget = Grid()
             elif element.kind == "icon":
                 widget = SvgIcon(element.props["name"])
             elif element.kind == "image":
@@ -179,6 +192,7 @@ class Renderer:
                 widget.connect("clicked", lambda *_: self.click(mounted))
             elif element.kind == "search":
                 widget.connect("changed", lambda *_: self.search_changed(mounted))
+                widget.connect("activate", lambda *_: self.search_submitted(mounted))
             elif element.kind == "slider":
                 widget.connect("value-changed", lambda *_: self.slider_changed(mounted))
             elif element.kind == "ring":
@@ -292,11 +306,12 @@ class Renderer:
                 widget.get_accessible().set_name(props["tooltip"] or props["text"])
             elif element.kind == "ring":
                 widget.queue_draw()
-            else:
+            elif element.kind == "progress":
                 widget.set_fraction(props["value"])
                 widget.set_show_text(props["text"] is not None)
                 widget.set_text(props["text"])
-        if element.kind in ("column", "row", "ring"):
+            apply_style(widget, element.kind, props)
+        if element.kind in ("column", "row", "ring", "grid"):
             container = widget.content if element.kind == "ring" else widget
             old_children = mounted.children
             keyed = {child.element.key: child for child in old_children if child.element.key is not None}
@@ -307,16 +322,27 @@ class Renderer:
                 if old is not None:
                     used.add(id(old))
                 rendered = self._reconcile(child, old)
-                expand = child.props["expand"]
+                expand = child.props.get("style", {}).get("expand", child.props["expand"])
                 if rendered.widget.get_parent() is None:
-                    container.pack_start(rendered.widget, expand, expand, 0)
-                container.set_child_packing(rendered.widget, expand, expand, 0, Gtk.PackType.START)
-                container.reorder_child(rendered.widget, index)
+                    if element.kind == "grid":
+                        container.attach(rendered.widget, 0, index, 1, 1)
+                    else:
+                        container.pack_start(rendered.widget, expand, expand, 0)
+                if element.kind != "grid":
+                    container.set_child_packing(rendered.widget, expand, expand, 0, Gtk.PackType.START)
+                    container.reorder_child(rendered.widget, index)
                 children.append(rendered)
             for child in old_children:
                 if id(child) not in used:
                     child.widget.destroy()
             mounted.children = children
+            if element.kind == "grid":
+                style = props.get("style", {})
+                columns, rows = style.get("columns", props["columns"]), style.get("rows", props["rows"])
+                positions = grid_positions(element.children, len(columns))
+                widget.configure(columns, rows, [(child.widget, *cell) for child, cell in zip(children, positions)],
+                                 round(style.get("columnGap", style.get("gap", props["spacing"]))),
+                                 round(style.get("rowGap", style.get("gap", props["spacing"]))))
             if element.kind == "ring":
                 # Overlay child requisitions don't change the ring's outer size. Allocate
                 # its box again so a wider hours value gets its new natural width.

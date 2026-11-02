@@ -1,5 +1,10 @@
 # Desktop widgets and customization
 
+Built-in widgets now use a shared engine with editable JSON views and independent
+Python controllers. See [Widget engine](widget-engine.md) for exporting a view,
+grid layouts, structured styles, state bindings, and event handlers. Existing
+custom Python components and GTK CSS remain supported.
+
 The desktop is one transparent GTK layout. Its cards share a stylesheet, but each has
 its own component, position, width, height, text scale, props and on/off switch. The built-in cards are
 **Clock**, **Calendar**, **System stats** (actual CPU, memory and disk usage), **Notes**, **Logtime**, **Cleaner**, and **Now playing**.

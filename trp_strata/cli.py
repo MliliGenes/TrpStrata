@@ -28,6 +28,9 @@ def parser():
     layout_parser = commands.add_parser("layout", help="Arrange desktop widgets, toggle individual cards or reset their layout")
     layout_parser.add_argument("action", choices=("edit", "done", "reset", "path", "list", "enable", "disable", "toggle"), nargs="?", default="edit")
     layout_parser.add_argument("widget_id", nargs="?")
+    widget = commands.add_parser("widget", help="Export editable JSON widget views")
+    widget.add_argument("action", choices=("export", "list"))
+    widget.add_argument("name", nargs="?")
     config = commands.add_parser("config", help="Inspect or change preferences").add_subparsers(dest="config_command")
     config.add_parser("list", help="List values and descriptions")
     config.add_parser("path", help="Print the configuration file path")
@@ -54,6 +57,15 @@ def main(argv=None):
     args = parser().parse_args(argv)
     command = args.command or "open"
     try:
+        if command == "widget":
+            from .widget_builtin_views import VIEWS, document
+            if args.action == "list":
+                print("\n".join(VIEWS))
+            else:
+                if args.name not in VIEWS:
+                    raise ValueError("Choose a built-in widget from: " + ", ".join(VIEWS))
+                print(json.dumps(document(args.name), indent=2, ensure_ascii=False))
+            return 0
         if command == "tui":
             from . import tui
             return tui.main()

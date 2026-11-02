@@ -21,8 +21,12 @@ def main():
                     log.seek(0)
                     raise RuntimeError(log.read().decode())
                 time.sleep(.05)
-            return subprocess.run([sys.executable, str(root / "tests/smoke_widgets.py")],
-                                  env=env, cwd=root, timeout=40).returncode
+            for script in sys.argv[1:] or ["smoke_widgets.py", "smoke_widget_engine.py"]:
+                result = subprocess.run([sys.executable, str(root / "tests" / script)],
+                                        env=env, cwd=root, timeout=40)
+                if result.returncode:
+                    return result.returncode
+            return 0
         finally:
             server.terminate()
             server.wait(timeout=5)

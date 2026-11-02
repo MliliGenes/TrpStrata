@@ -15,9 +15,11 @@ gi.require_version("Gdk", "3.0")
 from gi.repository import Gdk, Gio, GLib, Gtk  # noqa: E402
 
 from . import core, layout, storage, styles  # noqa: E402
-from .components import Column, component_scope, close_models  # noqa: E402
+from .components import Column  # noqa: E402
 from .gtk_renderer import Renderer  # noqa: E402
 from .glass import WallpaperGlass  # noqa: E402
+from .widget_engine import WidgetEngine, Context  # noqa: E402
+from .gtk_widget_styles import validate_tree  # noqa: E402
 
 log = logging.getLogger(__name__)
 
@@ -64,6 +66,7 @@ class LayoutWidget:
     preview_bounds: object = None
     gesture: object = None
     models: dict = field(default_factory=dict)
+    last_tree: object = None
 
 
 class DesktopWidgets:
@@ -118,8 +121,12 @@ class DesktopWidgets:
         self.module_monitor = Gio.File.new_for_path(storage.CUSTOM_WIDGETS).monitor_directory(Gio.FileMonitorFlags.NONE, None)
         self.module_monitor.connect("changed", self.on_module_change)
         self.provider = None
+        self.engine = WidgetEngine(defer=GLib.idle_add, repeat=GLib.timeout_add,
+                                   cancel=GLib.source_remove,
+                                   on_render=lambda ids: self.update(ids, refresh=False), validate=validate_tree)
         self.reload()
-        self.timer = GLib.timeout_add_seconds(1, self.update)
+        # Host visibility still follows session locking; controllers schedule their own data updates.
+        self.timer = GLib.timeout_add_seconds(1, lambda: self.update(refresh=False))
 
     def reload(self):
         self.config = core.load_config()
@@ -222,7 +229,7 @@ class DesktopWidgets:
                 max(0, min(max(0, self.area[3] - height), round(y))))
 
     def on_module_change(self, _monitor, file, _other, _event):
-        if file.get_basename().endswith(".py"):
+        if file.get_basename().endswith((".py", ".json")):
             if self.module_timer:
                 GLib.source_remove(self.module_timer)
             self.module_timer = GLib.timeout_add(300, self.reload_modules)
@@ -252,17 +259,19 @@ class DesktopWidgets:
                     updated[placement.id] = previous
                 continue
             if previous:
-                if previous.component is not factory:
-                    close_models(previous.models)
+                if previous.placement != placement or previous.component is not factory:
+                    previous.last_tree = object()
                 previous.placement, previous.component = placement, factory
                 if not self.drag or self.drag["id"] != placement.id:
                     previous.preview_bounds = None
                 updated[placement.id] = previous
             else:
-                updated[placement.id] = LayoutWidget(placement, factory, Renderer(on_action=self.update))
+                updated[placement.id] = LayoutWidget(placement, factory, Renderer())
+            if not placement.enabled:
+                self.engine.remove(placement.id)
         for name, frame in self.frames.items():
             if name not in updated:
-                close_models(frame.models)
+                self.engine.remove(name)
                 frame.renderer.close()
                 if frame.container is not None:
                     frame.container.destroy()
@@ -596,18 +605,35 @@ class DesktopWidgets:
         finally:
             self.positioning = False
 
-    def update(self):
+    def update(self, widget_ids=None, refresh=True):
         self.arrange_mode()
         if self.config["widgets_enabled"] and not self.is_locked():
             for name, frame in self.frames.items():
+                if widget_ids is not None and name not in widget_ids:
+                    continue
                 placement = frame.placement
                 try:
                     enabled = placement.enabled and frame.component is not None
-                    tree = frame.component(config=self.config, **placement.props) if enabled else None
+                    if enabled:
+                        instance = self.engine.mount(name, frame.component, {"config": self.config, **placement.props})
+                        frame.models = instance.models
+                        if refresh:
+                            if hasattr(instance.controller, "refresh"):
+                                instance.controller.refresh(Context(self.engine, instance))
+                            elif instance.controller is None:
+                                instance.dirty = True
+                        tree = self.engine.render(name)
+                    else:
+                        self.engine.remove(name)
+                        frame.models = {}
+                        tree = None
                     frame.renderer.interactive = not self.edit_mode
-                    with component_scope(frame.models):
+                    if tree is not frame.last_tree or frame.renderer.root is None:
                         widget = frame.renderer.render(Column(tree, visible=enabled,
-                                                              class_name=f"desktop-widget {placement.class_name}"))
+                                                               class_name=f"desktop-widget {placement.class_name}"))
+                        frame.last_tree = tree
+                    else:
+                        widget = frame.renderer.root.widget
                     widget.set_name(f"widget-{name}")
                     self.mount(name, frame, widget)
                 except Exception:
@@ -635,8 +661,8 @@ class DesktopWidgets:
         self.window.get_screen().disconnect(self.screen_handler)
         if self.provider:
             Gtk.StyleContext.remove_provider_for_screen(self.window.get_screen(), self.provider)
+        self.engine.close()
         for frame in self.frames.values():
-            close_models(frame.models)
             frame.renderer.close()
         self.backdrop.clear()
         if self.scale_provider:

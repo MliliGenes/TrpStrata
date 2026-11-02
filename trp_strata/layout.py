@@ -10,7 +10,6 @@ import re
 import sys
 
 from . import storage
-from .widgets import WIDGETS
 from . import settings
 
 DEFAULT_FILE = Path(__file__).with_name("desktop_layout.json")
@@ -265,14 +264,20 @@ def widget_geometry(placement):
 class ComponentLoader:
     """Resolve built-ins or user modules exporting a callable named Widget."""
     def __init__(self):
-        self.builtins = {widget.__name__: widget for widget in WIDGETS}
+        from .widget_builtin_views import VIEWS, document
+        from .widget_controllers import CONTROLLERS
+        from .widget_views import definition
+        self.builtins = {name: definition(document(name), CONTROLLERS) for name in VIEWS}
         self.cache = {}
 
     def load(self, name):
-        if name in self.builtins:
-            return self.builtins[name]
         if not MODULE_NAME.fullmatch(name):
             raise ValueError(f"Custom component names must be Python module names: {name}")
+        json_path = Path(storage.CUSTOM_WIDGETS) / f"{name}.json"
+        if json_path.exists():
+            return self.load_json(name, json_path)
+        if name in self.builtins:
+            return self.builtins[name]
         path = Path(storage.CUSTOM_WIDGETS) / f"{name}.py"
         previous = self.cache.get(name)
         try:
@@ -302,5 +307,41 @@ class ComponentLoader:
         except Exception:
             if previous:
                 log.exception("Cannot reload %s; keeping its last working component", name)
+                return previous[1]
+            raise
+
+    def load_json(self, name, path):
+        from .widget_controllers import CONTROLLERS
+        from .widget_engine import Controller
+        from .widget_views import definition
+        previous = self.cache.get(name)
+        module_path = path.with_suffix(".py")
+        try:
+            source = path.read_text()
+            module_source = module_path.read_text() if module_path.exists() else None
+            signature = (source, module_source)
+            if previous and previous[0] == signature:
+                return previous[1]
+            controllers = dict(CONTROLLERS)
+            if module_source is not None:
+                # Keep controller identity (and state) across view-only edits.
+                cached_module = self.cache.get((name, "controller"))
+                if cached_module and cached_module[0] == module_source:
+                    controller = cached_module[1]
+                else:
+                    namespace = {"__name__": f"trp_strata_controller_{name}", "__file__": str(module_path)}
+                    exec(compile(module_source, str(module_path), "exec"), namespace)
+                    controller = namespace.get("Controller")
+                    if not isinstance(controller, type) or not issubclass(controller, Controller):
+                        raise ValueError(f"{module_path.name} must export a Controller subclass")
+                controllers[name] = controller
+            factory = definition(json.loads(source), controllers)
+            self.cache[name] = (signature, factory)
+            if module_source is not None:
+                self.cache[(name, "controller")] = (module_source, controller)
+            return factory
+        except Exception:
+            if previous:
+                log.exception("Cannot reload %s; keeping its last working view", name)
                 return previous[1]
             raise
