@@ -7,9 +7,12 @@ cd "$(dirname "$(readlink -f "$0")")"
 PYTHON=/usr/bin/python3
 HELPER=$("$PYTHON" -m trp_strata.install_storage helper-pattern)
 
-if [ "$(readlink "$HOME/.local/bin/ws" 2>/dev/null || true)" = "$DEST/trpstrata" ]; then
-	rm -f "$HOME/.local/bin/ws"
-fi
+for name in ws wallpaper-studio; do
+	case "$(readlink "$HOME/.local/bin/$name" 2>/dev/null || true)" in
+		"$DEST/trpstrata"|"$HOME/.local/share/wallpaper-studio/wallpaper-studio")
+			rm -f "$HOME/.local/bin/$name" ;;
+	esac
+done
 
 if [ -x "$DEST/trpstrata" ]; then
 	"$DEST/trpstrata" restore || exit 1

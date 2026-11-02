@@ -125,7 +125,7 @@ def main(argv=None):
                               "awake": storage.read_json(storage.AWAKE, {})}, indent=2))
             return 0
         if command == "shell-init":
-            print("alias ws='trpstrata'\nalias wnext='trpstrata next'\n"
+            print("alias wnext='trpstrata next'\n"
                   "alias wawake='trpstrata awake'\nalias wclock='trpstrata clock'")
             return 0
         if command == "clock":

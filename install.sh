@@ -77,13 +77,13 @@ for _ in $(seq 50); do pgrep -f "$HELPER" >/dev/null || break; sleep 0.1; done  
 mkdir -p "$HOME/.local/bin" "$HOME/.local/share/applications" \
 	"$HOME/.local/share/icons/hicolor/scalable/apps" "$HOME/.config/autostart"
 ln -sf "$DEST/trpstrata" "$HOME/.local/bin/trpstrata"
-# A real executable shortcut works in Bash, Zsh and scripts without sourcing shell config.
-if [ ! -e "$HOME/.local/bin/ws" ] && [ ! -L "$HOME/.local/bin/ws" ] || \
-	[ "$(readlink "$HOME/.local/bin/ws" 2>/dev/null || true)" = "$DEST/trpstrata" ]; then
-	ln -sf "$DEST/trpstrata" "$HOME/.local/bin/ws"
-else
-	echo "Leaving your existing ~/.local/bin/ws in place; use trpstrata."
-fi
+# Remove shortcuts from earlier installations.
+for name in ws wallpaper-studio; do
+	case "$(readlink "$HOME/.local/bin/$name" 2>/dev/null || true)" in
+		"$DEST/trpstrata"|"$HOME/.local/share/wallpaper-studio/wallpaper-studio")
+			rm -f "$HOME/.local/bin/$name" ;;
+	esac
+done
 "$PYTHON" - "$PWD/data/trpstrata.png" "$HOME/.local/share/icons/hicolor" "$APP" <<'PY'
 import os
 import sys
@@ -162,7 +162,7 @@ if $START_HELPER; then
 fi
 
 say "Done (using $PYTHON). Open “trpStrata” from your apps, or run: trpstrata"
-echo "Terminal settings: trpstrata config list (or ws config list)."
+echo "Terminal settings: trpstrata config list"
 echo "Storage locations: trpstrata paths"
 echo "Optional Bash/Zsh aliases: eval \"\$(trpstrata shell-init)\""
 case ":$PATH:" in

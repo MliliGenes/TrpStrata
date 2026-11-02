@@ -2,22 +2,16 @@
 
 Pick a wallpaper and your whole desktop takes its colours.
 
-![Clicking wallpapers in trpStrata: the desktop, the app and Calculator recolour to match each one](docs/demo.gif)
-
-*Picking a wallpaper recolours the desktop and every open app on the spot. [Full-quality video](docs/demo.webm).*
+[Watch the demo video](docs/demo.webm).
 
 - **Wallpapers:** pictures or looping videos, chosen from a folder of yours, with an optional new one every few hours.
 - **Colours:** apps, GNOME Terminal and the lock screen are recoloured to match, in light, dark, or auto (light by day, dark at night).
 - **One click back:** *Restore original look* puts every setting back the way it was.
 - **Desktop widgets:** independently controlled clock, calendar, system and notes cards, with drag/resize and live CSS.
-- **Terminal control:** inspect and change preferences with `trpstrata config` or `ws config`.
+- **Terminal control:** inspect and change preferences with `trpstrata config`.
 
 Made for the 42 iMacs (Ubuntu 22.04, GNOME, X11), where the normal desktop picture setting is locked.
 No sudo needed.
-
-![The same wallpaper in light mode (left) and dark mode (right)](docs/light-dark.png)
-
-*One wallpaper, two looks: light by day, dark at night (or pick one).*
 
 ## Install
 
@@ -58,7 +52,7 @@ by the installer; clone new checkouts into goinfre if you want those files there
 Inspect the active locations with:
 
 ```sh
-ws paths
+trpstrata paths
 ```
 
 ## Run from source
@@ -111,8 +105,6 @@ libadwaita. The PyGObject upper bound keeps pip compatible with Ubuntu 22.04's G
 see the [PyGObject system dependency table](https://pygobject.gnome.org/guide/sysdeps.html).
 
 ## How to use it
-
-<img src="docs/window.png" alt="The trpStrata window" width="560">
 
 1. **Pick a folder.** The app comes with 16 wallpapers to start with;
     *Change folder…* points it at your own pictures and videos instead.
@@ -256,7 +248,7 @@ pkill -USR1 kitty
 For an interactive terminal control panel, run:
 
 ```sh
-ws tui
+trpstrata tui
 # Or directly from this checkout:
 .venv/bin/python -m trp_strata tui
 ```
@@ -317,17 +309,17 @@ trpstrata config reset [KEY]
 trpstrata status           configuration, wallpaper state and awake request as JSON
 ```
 
-The installer also creates `~/.local/bin/ws` as a shortcut, unless you already have a
-command there. Put `~/.local/bin` on your `PATH` if needed. Examples:
+The installer creates `~/.local/bin/trpstrata`.
+Put `~/.local/bin` on your `PATH` if needed. Examples:
 
 ```sh
-ws config set folder ~/Pictures/Wallpapers
-ws config set rotate_hours 0.5
-ws config set glass true
-ws config set light_from 8
-ws config set dark_from 20
-ws config set clock_format '%H:%M:%S'
-ws config set clock_top 48
+trpstrata config set folder ~/Pictures/Wallpapers
+trpstrata config set rotate_hours 0.5
+trpstrata config set glass true
+trpstrata config set light_from 8
+trpstrata config set dark_from 20
+trpstrata config set clock_format '%H:%M:%S'
+trpstrata config set clock_top 48
 ```
 
 Configuration commands work without a graphical session; changes apply at the next
@@ -335,7 +327,7 @@ helper startup. With a running desktop, commands apply immediately and the open
 control panel follows the saved preferences. `config path` prints the configuration path.
 Equal light/dark hours mean always dark; schedules can also cross midnight.
 
-For optional Bash/Zsh aliases (`ws`, `wnext`, `wawake`, `wclock`), run:
+For optional Bash/Zsh aliases (`wnext`, `wawake`, `wclock`), run:
 
 ```sh
 eval "$(trpstrata shell-init)"
@@ -353,16 +345,16 @@ and TUI, including custom widgets added to the layout.
 
 Cards use the wallpaper palette with translucent glass, accent highlights, softened
 wallpaper backdrops and drop shadows. Toggle **Frosted widget glass** in the GUI/TUI,
-or use `ws config set widget_blur false`. Adjust strength with
-`ws config set widget_blur_radius 24` (0–64). The Gaussian blur is sampled from the wallpaper;
+or use `trpstrata config set widget_blur false`. Adjust strength with
+`trpstrata config set widget_blur_radius 24` (0–64). The Gaussian blur is sampled from the wallpaper;
 videos use their poster frame. It does not require a compositor extension.
 
 ```sh
-ws layout edit        # drag inside to move; resize any edge/corner; scroll to scale text
-ws layout done        # finish arranging; only widget buttons accept clicks
-ws layout list
-ws layout toggle calendar
-ws layout reset       # replace placements with the default five-card layout
+trpstrata layout edit        # drag inside to move; resize any edge/corner; scroll to scale text
+trpstrata layout done        # finish arranging; only widget buttons accept clicks
+trpstrata layout list
+trpstrata layout toggle calendar
+trpstrata layout reset       # replace placements with the default five-card layout
 ```
 
 Cards move while you drag, and positions/scales save on release. Scales range from
@@ -374,8 +366,8 @@ The **Logtime** card shows your 1337 hours with a progress ring and Prev/Next mo
 Configure its login and target in the GUI/TUI, or run:
 
 ```sh
-ws config set logtime_username sel-mlil
-ws config set logtime_goal 180
+trpstrata config set logtime_username sel-mlil
+trpstrata config set logtime_goal 180
 ```
 
 October means October 28–November 27; the active period rolls over on the 28th. Fetching happens in the background and
@@ -404,7 +396,7 @@ control panel; the desktop components use GTK 3 in a separate process.
 
 Keep-awake now combines GNOME inhibition with a periodic XTEST mouse movement from the
 current position to `(0, 0)` and back. It sends no clicks or keys, skips held keys/buttons,
-and requires an active, unlocked session. Use `ws config set awake_method inhibit` for
+and requires an active, unlocked session. Use `trpstrata config set awake_method inhibit` for
 GNOME-only inhibition. Old `key` settings migrate to `mouse`. Synthetic input still
 needs testing against the school's idle monitor. See `~/.cache/trpstrata/helper.log`
 for diagnostics. Restore hides all widgets and stops keep-awake.
@@ -435,7 +427,7 @@ It restores your original look first, then removes the app.
 
 Preferences and generated colours live in `~/.config/trpstrata`. On machines with
 goinfre, installed code/wallpapers, previews/logs and downloaded themes live under
-`~/goinfre/trpstrata`; the usual home paths are compatibility links. `ws paths`
+`~/goinfre/trpstrata`; the usual home paths are compatibility links. `trpstrata paths`
 prints the selected paths.
 It also writes generated themes in `~/.local/share/themes`, a GTK 4 CSS import,
 launcher/autostart files, GNOME settings and session files in `XDG_RUNTIME_DIR`.

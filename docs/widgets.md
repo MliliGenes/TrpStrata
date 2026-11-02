@@ -9,7 +9,7 @@ its own component, position, width, height, text scale, props and on/off switch.
 After installing this version with `./install.sh`, enable arrange mode:
 
 ```sh
-ws layout edit
+trpstrata layout edit
 ```
 
 - Drag a card to move it; it snaps to the grid while you drag.
@@ -29,9 +29,9 @@ The GUI’s **Desktop widgets** group and TUI’s **Widgets** panel expose **Sna
 **Grid cell size (px)** and **Grid spacing (px)**. You can also use:
 
 ```sh
-ws config set layout_grid true
-ws config set layout_grid_size 32
-ws config set layout_grid_gap 8
+trpstrata config set layout_grid true
+trpstrata config set layout_grid_size 32
+trpstrata config set layout_grid_gap 8
 ```
 
 Cell size accepts 8–128 pixels; spacing accepts 0–64. Grid settings apply to the entire
@@ -43,7 +43,7 @@ cells can still overlap them.
 Finish with:
 
 ```sh
-ws layout done
+trpstrata layout done
 ```
 
 Arrange mode raises the cards and accepts input only over the cards. Normal mode stays
@@ -63,10 +63,10 @@ master switch; it preserves individual choices. The TUI's **Widgets** panel has 
 individual controls, and the CLI supports:
 
 ```sh
-ws layout list
-ws layout disable calendar
-ws layout enable calendar
-ws layout toggle notes
+trpstrata layout list
+trpstrata layout disable calendar
+trpstrata layout enable calendar
+trpstrata layout toggle notes
 ```
 
 ## Files you customize
@@ -87,7 +87,7 @@ writes the error to `~/.cache/trpstrata/helper.log`.
 
 On school machines with `~/goinfre`, app files and caches are stored in
 `~/goinfre/trpstrata`. The cache path above remains a compatibility link; your
-customizations stay in the small home config folder. Use `ws paths` to inspect locations.
+customizations stay in the small home config folder. Use `trpstrata paths` to inspect locations.
 
 ## Layout format
 
@@ -150,8 +150,8 @@ The global `config` prop is supplied automatically. Multiple instances can use t
 component with different IDs and props.
 
 ```sh
-ws layout path      # print the layout file path
-ws layout reset     # replace placements with the default layout
+trpstrata layout path      # print the layout file path
+trpstrata layout reset     # replace placements with the default layout
 ```
 
 Reset deliberately replaces `layout.json`; copy your custom layout first if you want to
@@ -184,7 +184,7 @@ empty. You can also add it manually to `layout.json`:
 {"id": "now-playing", "component": "NowPlaying", "anchor": "center-right", "x": 32, "y": 0, "scale": 1}
 ```
 
-Then use the GUI/TUI switch or `ws layout enable now-playing`. Its CSS classes are
+Then use the GUI/TUI switch or `trpstrata layout enable now-playing`. Its CSS classes are
 `.media-card`, `.media-title`, and `.media-detail`. It uses the usual shared palette,
 arrange mode and button input handling.
 
@@ -194,9 +194,9 @@ Set your login in the GUI's **Desktop widgets** settings, the TUI's **Widgets** 
 or the CLI:
 
 ```sh
-ws config set logtime_username sel-mlil
-ws config set logtime_goal 180
-ws layout enable logtime
+trpstrata config set logtime_username sel-mlil
+trpstrata config set logtime_goal 180
+trpstrata layout enable logtime
 ```
 
 The hours goal is your own target, with an initial default of 180. The ring caps at 100%;
@@ -243,9 +243,9 @@ Turning the effect off disables the slider but remembers its value. The TUI offe
 **Glass blur radius**, or use:
 
 ```sh
-ws config set widget_blur true
-ws config set widget_blur_radius 24
-ws config set widget_blur false
+trpstrata config set widget_blur true
+trpstrata config set widget_blur_radius 24
+trpstrata config set widget_blur false
 ```
 
 The strength ranges from 0 to 64 and sets the Gaussian standard deviation in wallpaper
@@ -418,11 +418,11 @@ windows, GTK applications or event loops.
 ## Keep-awake
 
 ```sh
-ws config set awake_method mouse
-ws config set awake_interval 60
-ws awake 60
-ws awake off
-ws config set awake_method inhibit
+trpstrata config set awake_method mouse
+trpstrata config set awake_interval 60
+trpstrata awake 60
+trpstrata awake off
+trpstrata config set awake_method inhibit
 ```
 
 Mouse mode saves the pointer position, sends an XTEST movement to `(0, 0)` and immediately
