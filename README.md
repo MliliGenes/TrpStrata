@@ -15,14 +15,30 @@ No sudo needed.
 
 ## Install
 
-Install this local checkout (no sudo needed):
+Install or update with one command (no sudo or Git needed):
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/MliliGenes/TrpStrata/main/bootstrap.sh | bash
+```
+
+This downloads the latest version, installs it for your user and removes the temporary
+download. Requires `curl`, `tar` and the system GTK/Python dependencies described under
+[Run from source](#run-from-source) (already available on the school iMacs).
+To install without starting the desktop helper immediately:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/MliliGenes/TrpStrata/main/bootstrap.sh | bash -s -- --no-start
+```
+
+Or install a local checkout:
 
 ```sh
 cd ~/TrpStrata
 ./install.sh
 ```
 
-Run the installer again to update. Later, open **trpStrata** from your apps (press Super and
+Run the curl command again to update, or update your checkout and rerun `./install.sh`.
+Later, open **trpStrata** from your apps (press Super and
 type *trpStrata*) or run `trpstrata`. Use `./get.sh` to install and open it in one step.
 
 ## Storage on the school iMacs
