@@ -1,4 +1,5 @@
-/* Wallpaper-tinted glass. Relative units preserve the effect when cards scale. */
+/* Open, background-free widgets. Theme colours follow the wallpaper palette.
+   Add class_name: "glass" to a layout entry to opt that card into frosted glass. */
 window#ws-desktop-widgets,
 window#ws-desktop-widgets decoration {
   background: transparent;
@@ -9,32 +10,34 @@ window#ws-desktop-widgets decoration {
   background: transparent;
 }
 #ws-desktop-widgets .desktop-widget {
-  background-color: alpha(@ws_sheet, 0.8);
-  background-image: linear-gradient(
-    135deg,
-    alpha(@ws_accent, 0.18),
-    alpha(@ws_paper, 0.1) 48%,
-    alpha(@ws_accent, 0.07)
-  );
+  background: transparent;
   color: @ws_ink;
-  border: 1px solid alpha(@ws_accent, 0.28);
+  border: 1px solid transparent;
   border-radius: 0.8em;
-  padding: 1.25em;
+  padding: 0.75em 1em;
   min-width: 13em;
-  /* Keep highlights inside the rounded card; an outer shadow bleeds through
-     the transparent desktop window when Gaussian glass is active. */
-  box-shadow:
-    inset 0 1px 0 alpha(@ws_ink, 0.2),
-    inset 0 -1px 0 alpha(@ws_accent, 0.1);
+  box-shadow: none;
+  font-family: Sans;
 }
-#ws-desktop-widgets.glass-ready .desktop-widget {
-  background-color: alpha(@ws_sheet, 0.38);
+#ws-desktop-widgets .desktop-widget label {
+  text-shadow: 0 1px 3px alpha(@ws_shadow, 0.5);
 }
-/* Used only during backdrop rendering: GTK supplies the exact CSS-rounded shape. */
+/* The runtime samples this mask when painting wallpaper blur. A transparent mask
+   is essential: removing the card colour alone would still leave a blurred panel. */
 #ws-desktop-widgets .desktop-widget.glass-mask {
-  background-color: white;
+  background-color: transparent;
   background-image: none;
   box-shadow: none;
+}
+#ws-desktop-widgets .desktop-widget.glass {
+  background-color: alpha(@ws_sheet, 0.65);
+  border-color: alpha(@ws_accent, 0.2);
+}
+#ws-desktop-widgets.glass-ready .desktop-widget.glass {
+  background-color: alpha(@ws_sheet, 0.3);
+}
+#ws-desktop-widgets .desktop-widget.glass.glass-mask {
+  background-color: white;
 }
 #ws-desktop-widgets.layout-edit .desktop-widget {
   border: 1px dashed @ws_accent;
@@ -44,25 +47,26 @@ window#ws-desktop-widgets decoration {
   border: none;
   padding: 0.3em 0.5em;
 }
-#ws-desktop-widgets .clock-time {
-  font-size: 3.5em;
-  font-weight: 600;
-  color: @ws_accent_text;
-  text-shadow: 0 0.04em 0.16em alpha(@ws_paper, 0.35);
+#ws-desktop-widgets .desktop-widget .clock-time {
+  font-size: 4em;
+  font-weight: 300;
+  color: mix(@ws_ink, @ws_accent_text, 0.2);
+  text-shadow: 0 2px 8px alpha(@ws_shadow, 0.45);
 }
 #ws-desktop-widgets .clock-date {
-  font-size: 0.9em;
-  color: mix(@ws_ink, @ws_accent_text, 0.35);
+  font-size: 0.95em;
+  font-weight: 500;
+  color: mix(@ws_ink, @ws_accent_text, 0.55);
 }
 #ws-desktop-widgets .widget-label {
-  font-size: 0.75em;
-  font-weight: bold;
+  font-size: 0.78em;
+  font-weight: 600;
   color: @ws_accent_text;
 }
 #ws-desktop-widgets .calendar-day {
   font-size: 3.5em;
-  font-weight: 600;
-  color: @ws_accent;
+  font-weight: 300;
+  color: @ws_accent_text;
 }
 #ws-desktop-widgets .calendar-cell,
 #ws-desktop-widgets .calendar-weekday {
@@ -71,27 +75,27 @@ window#ws-desktop-widgets decoration {
   font-size: 0.8em;
 }
 #ws-desktop-widgets .calendar-weekday {
-  color: @ws_muted;
+  color: mix(@ws_muted, @ws_ink, 0.3);
+  font-weight: 600;
 }
 #ws-desktop-widgets .calendar-cell.today {
-  background-color: @ws_accent;
-  background-image: linear-gradient(
-    to bottom,
-    shade(@ws_accent, 1.12),
-    @ws_accent
-  );
-  color: @ws_on_accent;
+  background-color: alpha(@ws_accent, 0.16);
+  background-image: none;
+  color: @ws_accent_text;
+  font-weight: bold;
   border-radius: 0.5em;
-  box-shadow: 0 0.1em 0.5em alpha(@ws_accent, 0.3);
+  box-shadow: inset 0 -2px 0 alpha(@ws_accent, 0.8);
 }
 #ws-desktop-widgets .metric-value {
   font-weight: 600;
+  font-family: monospace;
+  color: @ws_accent_text;
 }
 #ws-desktop-widgets .system-card progressbar trough {
   min-height: 0.3em;
   border-radius: 0.3em;
   background-image: none;
-  background-color: alpha(@ws_accent, 0.12);
+  background-color: alpha(@ws_ink, 0.16);
   border: none;
 }
 #ws-desktop-widgets .system-card progressbar progress {
@@ -101,13 +105,16 @@ window#ws-desktop-widgets decoration {
   background-image: linear-gradient(
     to right,
     @ws_accent,
-    shade(@ws_accent, 1.18)
+    @ws_accent_text
   );
   border: none;
-  box-shadow: 0 0 0.6em alpha(@ws_accent, 0.2);
+  box-shadow: none;
 }
 #ws-desktop-widgets .notes-text {
-  font-size: 1em;
+  font-size: 1.05em;
+  color: mix(@ws_ink, @ws_accent_text, 0.1);
+  border-left: 2px solid alpha(@ws_accent, 0.6);
+  padding-left: 0.8em;
 }
 #ws-desktop-widgets .resize-grip {
   color: @ws_accent;
@@ -120,11 +127,10 @@ window#ws-desktop-widgets decoration {
   min-width: 19em;
 }
 #ws-desktop-widgets .logtime-login {
-  background-color: alpha(@ws_accent, 0.18);
+  background: transparent;
   color: @ws_accent_text;
-  border: 1px solid alpha(@ws_accent, 0.35);
-  border-radius: 0.6em;
-  padding: 0.5em 1.2em;
+  border: none;
+  padding: 0.35em 0;
   font-family: monospace;
   font-weight: bold;
 }
@@ -139,9 +145,9 @@ window#ws-desktop-widgets decoration {
   font-weight: bold;
 }
 #ws-desktop-widgets .logtime-hours {
-  color: @ws_ink;
+  color: mix(@ws_ink, @ws_accent_text, 0.1);
   font-size: 4.5em;
-  font-weight: 500;
+  font-weight: 300;
 }
 #ws-desktop-widgets .logtime-unit {
   color: @ws_accent_text;
@@ -155,39 +161,63 @@ window#ws-desktop-widgets decoration {
   color: @ws_muted;
   font-size: 0.8em;
 }
-#ws-desktop-widgets .logtime-card button,
-#ws-desktop-widgets .launcher-card button,
-#ws-desktop-widgets .media-card button {
-  background-color: alpha(@ws_accent, 0.12);
+#ws-desktop-widgets .desktop-widget button {
+  background-color: transparent;
   background-image: none;
   color: @ws_ink;
-  border: 1px solid alpha(@ws_accent, 0.25);
+  border: 1px solid alpha(@ws_accent, 0.18);
   border-radius: 0.7em;
   padding: 0.45em 0.8em;
   min-height: 1.1em;
-  box-shadow: inset 0 1px 0 alpha(@ws_ink, 0.08);
+  box-shadow: none;
   text-shadow: none;
 }
-#ws-desktop-widgets .logtime-card button:hover,
-#ws-desktop-widgets .launcher-card button:hover,
-#ws-desktop-widgets .media-card button:hover {
-  background-color: alpha(@ws_accent, 0.28);
+#ws-desktop-widgets .desktop-widget button label {
+  text-shadow: none;
 }
-#ws-desktop-widgets .logtime-card button:active,
-#ws-desktop-widgets .launcher-card button:active,
-#ws-desktop-widgets .media-card button:active {
-  background-color: alpha(@ws_accent, 0.42);
+#ws-desktop-widgets .desktop-widget button:hover {
+  background-color: alpha(@ws_accent, 0.12);
+  border-color: alpha(@ws_accent, 0.5);
+  color: @ws_accent_text;
 }
-#ws-desktop-widgets .logtime-card button:disabled,
-#ws-desktop-widgets .launcher-card button:disabled,
-#ws-desktop-widgets .media-card button:disabled {
-  color: @ws_muted;
+#ws-desktop-widgets .desktop-widget button:active {
+  background-color: alpha(@ws_accent, 0.22);
+  border-color: @ws_accent;
+}
+#ws-desktop-widgets .desktop-widget button:disabled {
+  color: alpha(@ws_muted, 0.65);
+  border-color: alpha(@ws_muted, 0.12);
+  background: transparent;
+}
+#ws-desktop-widgets .desktop-widget button:focus {
+  border-color: @ws_accent;
+}
+#ws-desktop-widgets .desktop-widget entry {
+  background: transparent;
+  color: @ws_ink;
+  caret-color: @ws_accent_text;
+  border: 1px solid transparent;
+  border-bottom-color: alpha(@ws_accent, 0.4);
+  border-radius: 0;
+  padding: 0.5em 0.25em;
+  box-shadow: none;
+}
+#ws-desktop-widgets .desktop-widget entry:focus {
+  border-bottom-color: @ws_accent;
+}
+#ws-desktop-widgets .desktop-widget entry image {
+  color: @ws_accent_text;
 }
 
 #ws-desktop-widgets .launcher-card button.launcher-app {
   min-height: 6em;
   min-width: 7em;
   padding: 0.55em 0.8em;
+  border-color: transparent;
+}
+#ws-desktop-widgets .launcher-card button.launcher-app:hover,
+#ws-desktop-widgets .launcher-card button.launcher-app:focus {
+  border-color: alpha(@ws_accent, 0.4);
 }
 #ws-desktop-widgets .launcher-card .launcher-empty {
   min-height: 7.1em;
@@ -206,15 +236,21 @@ window#ws-desktop-widgets decoration {
 #ws-desktop-widgets .device-card scale trough {
   min-height: 0.4em;
   background-color: alpha(@ws_ink, 0.12);
+  background-image: none;
+  border: none;
   border-radius: 1em;
 }
 #ws-desktop-widgets .device-card scale highlight {
   background-color: @ws_accent;
+  background-image: none;
+  border: none;
   border-radius: 1em;
 }
 #ws-desktop-widgets .device-card scale slider {
-  background-color: @ws_accent;
+  background-color: @ws_accent_text;
   background-image: none;
+  border: 1px solid alpha(@ws_ink, 0.3);
+  box-shadow: 0 1px 3px alpha(@ws_shadow, 0.25);
   min-width: 1em;
   min-height: 1em;
   border-radius: 1em;
@@ -225,7 +261,8 @@ window#ws-desktop-widgets decoration {
 }
 #ws-desktop-widgets .media-title {
   font-size: 1.35em;
-  font-weight: bold;
+  font-weight: 600;
+  color: mix(@ws_ink, @ws_accent_text, 0.25);
 }
 #ws-desktop-widgets .media-detail {
   color: @ws_muted;
@@ -240,7 +277,6 @@ window#ws-desktop-widgets decoration {
 #ws-desktop-widgets .media-artwork {
   min-width: 18em;
   min-height: 18em;
-  /* object-fit: cover; */
 }
 #ws-desktop-widgets .media-card button.media-control {
   font-size: 1.3em;
