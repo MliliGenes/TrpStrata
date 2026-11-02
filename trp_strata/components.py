@@ -118,7 +118,7 @@ def Progress(value=0, *, text=None, class_name="", visible=True, expand=False, a
     return Element("progress", props, key=key)
 
 
-def Button(text, *, on_click, sensitive=True, tooltip="", icon=None, system_icon=None, icon_position="left", class_name="", visible=True, expand=False, align="fill", key=None):
+def Button(text, *, on_click, sensitive=True, tooltip="", icon=None, system_icon=None, icon_position="left", show_label=True, class_name="", visible=True, expand=False, align="fill", key=None):
     if not callable(on_click) or type(sensitive) is not bool:
         raise TypeError("Button needs an on_click callback and boolean sensitive")
     props = _props(class_name, visible, expand, align)
@@ -131,8 +131,12 @@ def Button(text, *, on_click, sensitive=True, tooltip="", icon=None, system_icon
         raise ValueError("Choose either icon or system_icon")
     if icon_position not in ("left", "top"):
         raise ValueError("icon_position must be left or top")
+    if type(show_label) is not bool:
+        raise TypeError("show_label must be boolean")
+    if not show_label and icon is None and system_icon is None:
+        raise ValueError("An icon is required when show_label is false")
     props.update(text=str(text), on_click=on_click, sensitive=sensitive, tooltip=str(tooltip), icon=icon,
-                 system_icon=system_icon, icon_position=icon_position)
+                 system_icon=system_icon, icon_position=icon_position, show_label=show_label)
     return Element("button", props, key=key)
 
 

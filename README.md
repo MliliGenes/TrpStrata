@@ -211,9 +211,9 @@ your edits. Each Notes widget is edited independently, keeping its position and 
 Under **Widgets**, enable **App launcher** (and **Show desktop widgets**). Turn off
 **Arrange widgets** to click its app buttons. The launcher follows your GNOME dock
 favourites; the search box finds installed applications by name, description or
-desktop ID. Clear the search to return to favourites. App buttons show their system
-icons above their titles in a three-column grid with consistent dimensions; long names are shortened and shown in full in
-tooltips. Changes to installed apps and favourites are picked up automatically.
+desktop ID. Clear the search to return to favourites. The horizontal dock shows
+only app icons, with names in tooltips and accessibility labels, compact paging
+buttons, and search on the right. Changes to installed apps and favourites are picked up automatically.
 
 To pin a different list, edit the launcher's `props` in
 `~/.config/trpstrata/layout.json`, using desktop-file IDs from
@@ -374,8 +374,11 @@ Widgets use translucent theme-coloured tiles, rounded controls and oversized
 readings inspired by the supplied modular-widget reference. Colours follow the
 wallpaper palette and light/dark mode; Calendar and Notes use an alternate theme
 surface. Set `class_name` to `light`, `red`, `transparent`, or `glass` in a layout
-entry to choose a different surface (`red` now uses your theme accent). Dotted numeric typography
-uses the optional Doto font, falling back to monospace when it is unavailable. Toggle
+entry to choose a different surface (`red` now uses your theme accent).
+Choose **Widgets → Widget font** for Dotted, Sans, Mono or Serif typography, updated
+live. Dotted uses bundled open-source **Doto**, a Nothing-style alternative, with
+readable sans-serif labels. No font installation is needed. The TUI offers the same
+setting, or use `trpstrata config set widget_font mono` from the CLI. Toggle
 **Frosted widget glass** in the GUI/TUI to control its blur,
 or use `trpstrata config set widget_blur false`. Adjust strength with
 `trpstrata config set widget_blur_radius 24` (0–64). The Gaussian blur is sampled from the wallpaper;

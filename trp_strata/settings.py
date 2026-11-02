@@ -27,6 +27,7 @@ DEFAULT_CONFIG = {
     "layout_grid_gap": 8,
     "widget_blur": True,
     "widget_blur_radius": 24,
+    "widget_font": "dotted",
     "logtime_username": "",
     "logtime_goal": 180,
     "awake_method": "mouse",  # GNOME inhibitor plus a pointer round trip; "inhibit" disables movement
@@ -54,6 +55,7 @@ DESCRIPTIONS = {
     "layout_grid_gap": "Space between grid cells in pixels (0–64)",
     "widget_blur": "Frosted wallpaper backdrop behind widget cards",
     "widget_blur_radius": "Gaussian blur strength in wallpaper pixels (0–64; 0 disables blur)",
+    "widget_font": "Widget typography: dotted (Doto), sans, mono or serif",
     "logtime_username": "1337 login for the Logtime widget; empty pauses requests",
     "logtime_goal": "Target hours per Logtime period (default 180; configurable)",
     "awake_method": "mouse (inhibitor + pointer round trip) or inhibit (GNOME only)",
@@ -94,6 +96,10 @@ def validate(key, value):
             raise ValueError(f"{key} must be a single-line string")
         if key == "mode" and value not in ("light", "dark", "auto"):
             raise ValueError("mode must be light, dark or auto")
+        if key == "widget_font":
+            from .widget_fonts import PRESETS
+            if value not in PRESETS:
+                raise ValueError("widget_font must be one of: " + ", ".join(PRESETS))
         if key == "logtime_username":
             value = value.strip()
             if value and not re.fullmatch(r"[A-Za-z0-9_-]{1,64}", value):

@@ -75,6 +75,14 @@ def main():
                 window.navigation.set_fold_policy(Adw.FlapFoldPolicy.AUTO)
                 window.pages.set_visible_child_name("widgets")
                 assert set(window.widget_toggles) == {"clock", "calendar", "system", "cleaner", "notes", "logtime", "now-playing", "launcher", "file-search", "quick-links", "volume", "brightness"}
+                for preset in window.font_keys:
+                    window.font_combo.set_selected(window.font_keys.index(preset))
+                    wait(lambda: settings.load_config()["widget_font"] == preset)
+                app.core.save_config(widget_font="mono")
+                with patch.object(app.core, "save_config", wraps=app.core.save_config) as save:
+                    window.sync_from_disk()
+                    assert window.font_keys[window.font_combo.get_selected()] == "mono"
+                    save.assert_not_called()
                 assert "quick-links" in window.link_edit_buttons
                 editor = window.edit_quick_links("quick-links")
                 editor.title_entry.set_text("Work links")

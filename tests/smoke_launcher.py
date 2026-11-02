@@ -17,13 +17,13 @@ def main():
     clicks = []
     queries = []
 
-    def tree(icon):
+    def tree(icon, show_label=False):
         return Column(
             Search(queries[-1] if queries else "", on_change=queries.append, key="search"),
-            Row(Button("Files", system_icon=icon, icon_position="top", key="short", on_click=lambda: clicks.append("files")),
+             Row(Button("Files", system_icon=icon, icon_position="top", show_label=show_label, key="short", on_click=lambda: clicks.append("files")),
             Button("An application with an unusually long name that should never widen the card",
-                   system_icon="missing-test-application-icon", icon_position="top", key="long", on_click=lambda: None),
-            Button("Terminal", system_icon="utilities-terminal", icon_position="top", key="third", on_click=lambda: None),
+                    system_icon="missing-test-application-icon", icon_position="top", show_label=show_label, key="long", on_click=lambda: None),
+             Button("Terminal", system_icon="utilities-terminal", icon_position="top", show_label=show_label, key="third", on_click=lambda: None),
             homogeneous=True, spacing=8),
         )
 
@@ -41,6 +41,8 @@ def main():
         search.set_text("terminal")
         assert queries == ["terminal"]
         child = short.get_child()
+        assert not child.label.get_visible()
+        assert short.get_accessible().get_name() == "Files"
         assert child.image.size == 48
         assert child.image.get_storage_type() == Gtk.ImageType.SURFACE
         assert child.image.serialized == "system-file-manager"
@@ -58,6 +60,8 @@ def main():
         assert child.image.serialized == "web-browser"
         assert child.image.get_storage_type() == Gtk.ImageType.SURFACE
         # File-backed icons (common for third-party apps) also use the Gio path.
+        renderer.render(tree("web-browser", show_label=True))
+        assert child.label.get_visible()
         renderer.render(tree(Gio.FileIcon.new(Gio.File.new_for_path(
             str(Path(__file__).resolve().parents[1] / "trp_strata/assets/fontawesome/solid/music.svg"))).to_string()))
         assert child.image.get_storage_type() == Gtk.ImageType.SURFACE

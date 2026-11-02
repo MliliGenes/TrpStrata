@@ -11,7 +11,7 @@ gi.require_version("Adw", "1")
 gi.require_version("GdkPixbuf", "2.0")
 from gi.repository import Adw, Gdk, GdkPixbuf, Gio, GLib, Gtk  # noqa: E402
 
-from . import core, layout, styles  # noqa: E402
+from . import core, layout, styles, widget_fonts  # noqa: E402
 
 APP_ID = "io.github.TrpStrata"
 THUMB_W, THUMB_H = 480, 270          # pixels on disk; shown at half size, sharp on HiDPI screens
@@ -263,6 +263,14 @@ class Window(Adw.ApplicationWindow):
         widgets = Adw.PreferencesGroup(title="Desktop widgets",
                                        description="Each widget has its own switch. Arrange cards on the desktop or style them in widgets.css.")
         widgets.add(self.switch_row("Show desktop widgets", "Clock, notes, launchers, file search, quick links, volume, brightness and more", "widgets_enabled"))
+        self.font_keys = list(widget_fonts.PRESETS)
+        self.font_combo = Adw.ComboRow(title="Widget font", subtitle="Doto dotted numerals, clean sans, mono or serif",
+                                      model=Gtk.StringList.new([preset[0] for preset in widget_fonts.PRESETS.values()]))
+        self.font_combo.set_selected(self.font_keys.index(self.config["widget_font"]))
+        self.font_combo.connect("notify::selected", lambda row, _param:
+                                self.save(widget_font=self.font_keys[row.get_selected()])
+                                if not self.syncing_config and row.get_selected() < len(self.font_keys) else None)
+        widgets.add(self.font_combo)
         widgets.add(self.switch_row("Arrange widgets", "Drag inside to move; drag any edge/corner to resize; scroll to scale text", "layout_edit"))
         widgets.add(self.switch_row("Snap to grid", "Align card positions and sizes, with gaps between cells", "layout_grid"))
         self.grid_spins = {}
@@ -554,6 +562,7 @@ class Window(Adw.ApplicationWindow):
             for key, switch in self.switches.items():
                 switch.set_active(self.config[key])
             self.blur_scale.set_value(self.config["widget_blur_radius"])
+            self.font_combo.set_selected(self.font_keys.index(self.config["widget_font"]))
             for key, spin in self.grid_spins.items():
                 spin.set_value(self.config[key])
             for key, entry in self.logtime_entries.items():

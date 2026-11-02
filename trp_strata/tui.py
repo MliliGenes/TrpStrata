@@ -23,11 +23,12 @@ LABELS = {
     "widgets_enabled": "Show all widgets", "layout_edit": "Arrange widgets with mouse",
     "layout_grid": "Snap to grid", "layout_grid_size": "Grid cell size (px)",
     "layout_grid_gap": "Grid spacing (px)",
-    "widget_blur": "Frosted widget glass", "widget_blur_radius": "Glass blur radius",
+    "widget_blur": "Frosted widget glass", "widget_blur_radius": "Glass blur radius", "widget_font": "Widget font",
     "lock_password": "Lock-screen password",
     "logtime_username": "Logtime username", "logtime_goal": "Logtime goal (hours)",
 }
-CHOICES = {"mode": ("light", "dark", "auto"), "awake_method": ("mouse", "inhibit")}
+CHOICES = {"mode": ("light", "dark", "auto"), "awake_method": ("mouse", "inhibit"),
+           "widget_font": ("dotted", "sans", "mono", "serif")}
 
 
 @dataclass
@@ -150,7 +151,7 @@ class Panel:
             return rows
         keys = {
             1: ("mode", "glass", "terminal", "lock_screen", "light_from", "dark_from"),
-            2: ("clock", "clock_format", "clock_date_format", "clock_top", "widgets_enabled", "layout_edit", "layout_grid", "layout_grid_size", "layout_grid_gap", "widget_blur", "widget_blur_radius", "lock_password", "logtime_username", "logtime_goal"),
+            2: ("clock", "clock_format", "clock_date_format", "clock_top", "widgets_enabled", "widget_font", "layout_edit", "layout_grid", "layout_grid_size", "layout_grid_gap", "widget_blur", "widget_blur_radius", "lock_password", "logtime_username", "logtime_goal"),
             3: ("awake_method", "awake_interval"),
         }
         if self.page in keys:

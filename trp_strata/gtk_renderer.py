@@ -282,6 +282,8 @@ class Renderer:
                     child.label.set_max_width_chars(12 if vertical else 22)
                     child.image.set_app_icon(props["system_icon"], 48 if vertical else 32)
                     child.label.set_text(props["text"])
+                    child.label.set_no_show_all(not props["show_label"])
+                    child.label.set_visible(props["show_label"])
                 elif props["icon"] is not None:
                     if not isinstance(child, SvgIcon):
                         child.destroy()

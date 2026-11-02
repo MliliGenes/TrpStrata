@@ -1,7 +1,7 @@
 /* Modular tiles inspired by the reference, coloured by the wallpaper theme.
    Optional layout class_name values: light, red, transparent, glass.
    The legacy "red" variant now follows the theme accent, rather than fixed red.
-   Doto supplies dotted numerals when installed; monospace is the fallback. */
+   The bundled Doto preset supplies dotted numerals; typography is selectable. */
 @define-color ws_tile_dark @ws_paper;
 @define-color ws_tile_light @ws_ink;
 @define-color ws_tile_red @ws_accent;
@@ -243,6 +243,24 @@ window#ws-desktop-widgets decoration,
 #ws-desktop-widgets .launcher-card button.launcher-app label {
   font-weight: 400;
   font-size: 0.9em;
+}
+#ws-desktop-widgets .launcher-dock button.launcher-app {
+  min-width: 48px;
+  min-height: 48px;
+  padding: 0.45em;
+  border-radius: 1em;
+  background: transparent;
+}
+#ws-desktop-widgets .launcher-dock button.launcher-app:hover {
+  background: alpha(@ws_accent, 0.2);
+}
+#ws-desktop-widgets .launcher-dock button.dock-page {
+  min-width: 0.7em;
+  padding: 0.35em;
+}
+#ws-desktop-widgets .launcher-dock .dock-search {
+  min-width: 10em;
+  margin-left: 0.4em;
 }
 #ws-desktop-widgets .device-card scale {
   min-width: 14em;

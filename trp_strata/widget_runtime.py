@@ -14,7 +14,7 @@ gi.require_version("Gtk", "3.0")
 gi.require_version("Gdk", "3.0")
 from gi.repository import Gdk, Gio, GLib, Gtk  # noqa: E402
 
-from . import core, layout, storage, styles  # noqa: E402
+from . import core, layout, storage, styles, widget_fonts  # noqa: E402
 from .components import Column  # noqa: E402
 from .gtk_renderer import Renderer  # noqa: E402
 from .glass import WallpaperGlass  # noqa: E402
@@ -74,6 +74,7 @@ class DesktopWidgets:
     """Transparent, click-through desktop window with live user CSS."""
     def __init__(self, is_locked):
         styles.ensure_user_styles()
+        widget_fonts.register()
         self.is_locked = is_locked
         self.loader = layout.ComponentLoader()
         self.frames = {}
@@ -140,12 +141,14 @@ class DesktopWidgets:
         try:
             theme = Path(core.THEME_CSS).read_text() if Path(core.THEME_CSS).exists() else ""
             custom = Path(core.WIDGETS_CSS).read_text() if Path(core.WIDGETS_CSS).exists() else ""
-            provider.load_from_data((fallback + theme + styles.DIRECTORY.joinpath("widgets.css").read_text() + custom).encode())
+            font_css = widget_fonts.css(self.config["widget_font"])
+            provider.load_from_data((fallback + theme + styles.DIRECTORY.joinpath("widgets.css").read_text() + font_css + custom).encode())
         except (OSError, GLib.Error) as error:
             log.warning("Cannot reload widget CSS; keeping previous style: %s", error)
             if self.provider is None:
                 provider = Gtk.CssProvider()
-                provider.load_from_data((fallback + styles.DIRECTORY.joinpath("widgets.css").read_text()).encode())
+                provider.load_from_data((fallback + styles.DIRECTORY.joinpath("widgets.css").read_text()
+                                         + widget_fonts.css(self.config["widget_font"])).encode())
             else:
                 provider = None
         if provider is not None:
