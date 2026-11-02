@@ -1,0 +1,171 @@
+#!/usr/bin/env bash
+# Install trpStrata for the current user (no sudo needed). Run it again to update.
+set -euo pipefail
+cd "$(dirname "$(readlink -f "$0")")"
+
+START_HELPER=true
+case "${1:-}" in
+	--no-start) START_HELPER=false ;;
+	-h|--help) echo "Usage: ./install.sh [--no-start]"; exit 0 ;;
+	"") ;;
+	*) echo "Usage: ./install.sh [--no-start]" >&2; exit 1 ;;
+esac
+
+APP=io.github.TrpStrata
+DEST="$HOME/.local/share/trpstrata"
+ADW_GTK3=v6.5   # GTK 3 theme that lets older apps (Files, Terminal…) take the new colours
+
+say() { printf '\033[1m%s\033[0m\n' "$*"; }
+
+# --- what the app needs -------------------------------------------------------------
+# A Python that can load GTK 4 and libadwaita. Ubuntu's own /usr/bin/python3 can; a python3 from
+# Homebrew, conda, pyenv or a virtualenv usually can't, even when it comes first in PATH.
+has_gtk() {
+	# the window (GTK 4) and the desktop helper (GDK 3 + cairo) run as separate processes: check each
+	"$1" - 2>/dev/null <<'PY' && "$1" - 2>/dev/null <<'PY2'
+import gi
+gi.require_version("Gtk", "4.0"); gi.require_version("Adw", "1")
+from gi.repository import Gtk, Adw
+PY
+import gi, cairo
+gi.require_version("Gtk", "3.0"); gi.require_version("GdkPixbuf", "2.0")
+from gi.repository import Gtk, GdkPixbuf
+loader = GdkPixbuf.PixbufLoader.new_with_type("svg")
+loader.write(b'<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"/>')
+loader.close()
+PY2
+}
+PYTHON=
+tried=()
+for candidate in /usr/bin/python3 "$(command -v python3 || true)" /usr/local/bin/python3; do
+	[ -n "$candidate" ] && [ -x "$candidate" ] || continue
+	tried+=("$candidate")
+	if has_gtk "$candidate"; then PYTHON=$candidate; break; fi
+done
+if [ -z "$PYTHON" ]; then
+	echo "trpStrata needs Python with GTK 3/4, libadwaita and SVG image support; no suitable interpreter was found." >&2
+	echo "Tried: ${tried[*]:-no python3 at all}" >&2
+	echo "On Ubuntu: python3-gi, python3-gi-cairo, gir1.2-gtk-3.0, gir1.2-gtk-4.0, gir1.2-adw-1 and librsvg2-common." >&2
+	exit 1
+fi
+if [ "${XDG_SESSION_TYPE:-x11}" != x11 ]; then
+	echo "Note: you're on $XDG_SESSION_TYPE; the wallpaper is only drawn in X11 (Xorg) sessions." >&2
+fi
+command -v cvlc >/dev/null || echo "Note: VLC isn't installed, so video wallpapers won't play (pictures work)." >&2
+
+# an older home-made setup also draws the desktop and writes gtk.css; two would fight
+if [ -f "$HOME/.config/autostart/studio-wallpaper.desktop" ]; then
+	echo "Found the older 'studio' setup. Run 'studio reset' first so the two don't fight over the desktop." >&2
+	exit 1
+fi
+
+# The stable path stays in ~/.local/share; bulky code, wallpapers and caches prefer ~/goinfre.
+STORAGE_OUTPUT=$("$PYTHON" -m trp_strata.install_storage paths)
+mapfile -t STORAGE_PATHS <<<"$STORAGE_OUTPUT"
+APP_STORAGE=${STORAGE_PATHS[0]}
+LOG_DIR=${STORAGE_PATHS[1]}
+THEME_STORAGE=${STORAGE_PATHS[2]}
+
+# --- the app ------------------------------------------------------------------------
+say "Installing to $APP_STORAGE"
+# stop this install's background helper (and one started by an older version) before replacing it
+HELPER=$("$PYTHON" -m trp_strata.install_storage helper-pattern)
+pkill -f "$HELPER" 2>/dev/null || true
+pkill -f "$DEST/trpstrata lock" 2>/dev/null || true
+for _ in $(seq 50); do pgrep -f "$HELPER" >/dev/null || break; sleep 0.1; done   # let it let go first
+"$PYTHON" -m trp_strata.install_storage install --source "$PWD" --python "$PYTHON"
+mkdir -p "$HOME/.local/bin" "$HOME/.local/share/applications" \
+	"$HOME/.local/share/icons/hicolor/scalable/apps" "$HOME/.config/autostart"
+ln -sf "$DEST/trpstrata" "$HOME/.local/bin/trpstrata"
+# A real executable shortcut works in Bash, Zsh and scripts without sourcing shell config.
+if [ ! -e "$HOME/.local/bin/ws" ] && [ ! -L "$HOME/.local/bin/ws" ] || \
+	[ "$(readlink "$HOME/.local/bin/ws" 2>/dev/null || true)" = "$DEST/trpstrata" ]; then
+	ln -sf "$DEST/trpstrata" "$HOME/.local/bin/ws"
+else
+	echo "Leaving your existing ~/.local/bin/ws in place; use trpstrata."
+fi
+"$PYTHON" - "$PWD/data/trpstrata.png" "$HOME/.local/share/icons/hicolor" "$APP" <<'PY'
+import os
+import sys
+import gi
+gi.require_version("GdkPixbuf", "2.0")
+from gi.repository import GdkPixbuf
+source, root, app = sys.argv[1:]
+for size in (16, 24, 32, 48, 64, 128, 256, 512):
+    directory = os.path.join(root, f"{size}x{size}", "apps")
+    os.makedirs(directory, exist_ok=True)
+    icon = GdkPixbuf.Pixbuf.new_from_file_at_scale(source, size, size, True)
+    icon.savev(os.path.join(directory, app + ".png"), "png", [], [])
+old = os.path.join(root, "scalable", "apps", app + ".svg")
+if os.path.exists(old):
+    os.remove(old)
+PY
+
+cat >"$HOME/.local/share/applications/$APP.desktop" <<DESKTOP
+[Desktop Entry]
+Type=Application
+Name=trpStrata
+Comment=Change your wallpaper and recolour your desktop to match
+Exec=$DEST/trpstrata
+Icon=$APP
+Categories=Settings;DesktopSettings;GTK;
+Keywords=wallpaper;background;theme;colour;color;
+StartupNotify=true
+DESKTOP
+
+# the helper that draws the wallpaper, every time you log in
+cat >"$HOME/.config/autostart/trpstrata-desktop.desktop" <<DESKTOP
+[Desktop Entry]
+Type=Application
+Name=trpStrata (desktop)
+Comment=Draws your trpStrata wallpaper behind every window
+Exec=$DEST/trpstrata desktop
+NoDisplay=true
+X-GNOME-Autostart-enabled=true
+DESKTOP
+
+# A small cache-cleaner window, also available through the desktop widget.
+cat >"$HOME/.local/share/applications/trpstrata-cleaner.desktop" <<DESKTOP
+[Desktop Entry]
+Type=Application
+Name=Home Cache Cleaner
+Comment=Preview and clean selected application caches
+Exec=$PYTHON -m trp_strata.cleaner --gui
+Icon=edit-clear
+Categories=System;Utility;
+Terminal=false
+DESKTOP
+
+# --- GTK 3 theme --------------------------------------------------------------------
+if [ ! -d "$HOME/.local/share/themes/adw-gtk3" ] && [ ! -d /usr/share/themes/adw-gtk3 ]; then
+	say "Downloading the adw-gtk3 theme ($ADW_GTK3)"
+	mkdir -p "$THEME_STORAGE"
+	if curl -fsSL "https://github.com/lassekongo83/adw-gtk3/releases/download/$ADW_GTK3/adw-gtk3${ADW_GTK3}.tar.xz" |
+		tar -xJ -C "$THEME_STORAGE"; then
+		:
+	else
+		echo "Couldn't download adw-gtk3; newer apps will still be recoloured, older ones won't." >&2
+	fi
+fi
+"$PYTHON" -m trp_strata.install_storage link-themes
+
+update-desktop-database -q "$HOME/.local/share/applications" 2>/dev/null || true
+gtk-update-icon-cache -q -t "$HOME/.local/share/icons/hicolor" 2>/dev/null || true
+
+# seed editable CSS files without overwriting existing customisations
+"$PYTHON" -c "import sys; sys.path.insert(0, sys.argv[1]); from trp_strata.styles import ensure_user_styles; ensure_user_styles()" "$DEST"
+
+# start the helper now, so you don't have to log out; retain diagnostics
+if $START_HELPER; then
+	mkdir -p "$LOG_DIR"
+	(setsid "$DEST/trpstrata" desktop >>"$LOG_DIR/helper.log" 2>&1 &)
+fi
+
+say "Done (using $PYTHON). Open “trpStrata” from your apps, or run: trpstrata"
+echo "Terminal settings: trpstrata config list (or ws config list)."
+echo "Storage locations: trpstrata paths"
+echo "Optional Bash/Zsh aliases: eval \"\$(trpstrata shell-init)\""
+case ":$PATH:" in
+	*:"$HOME/.local/bin":*) ;;
+	*) echo 'Add ~/.local/bin to PATH in your shell startup file: export PATH="$HOME/.local/bin:$PATH"' ;;
+esac

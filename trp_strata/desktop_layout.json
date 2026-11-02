@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "widgets": [
+    {
+      "id": "clock",
+      "component": "Clock",
+      "anchor": "top-center",
+      "x": 0,
+      "enabled": true,
+      "class_name": "clock-placement",
+      "props": {},
+      "scale": 1
+    },
+    {
+      "id": "calendar", "component": "Calendar", "anchor": "top-right",
+      "x": 32, "y": 32, "scale": 1
+    },
+    {
+      "id": "system", "component": "System", "anchor": "top-left",
+      "x": 32, "y": 32, "scale": 1
+    },
+    {
+      "id": "cleaner", "component": "Cleaner", "anchor": "center-left",
+      "x": 32, "y": 32, "scale": 1
+    },
+    {
+      "id": "notes", "component": "Notes", "anchor": "bottom-right",
+      "x": 32, "y": 32, "scale": 1,
+      "props": {"title": "Notes", "text": "Your desktop, your way.\n\nTurn on Arrange widgets to move and resize these cards."}
+    },
+    {
+      "id": "now-playing", "component": "NowPlaying", "anchor": "center-right",
+      "x": 32, "y": 0, "scale": 1
+    },
+    {
+      "id": "logtime", "component": "Logtime", "anchor": "bottom-left",
+      "x": 32, "y": 32, "scale": 1
+    },
+    {
+      "id": "launcher", "component": "Launcher", "anchor": "center-center",
+      "x": 0, "y": 0, "scale": 1, "enabled": false,
+      "props": {"page_size": 6}
+    },
+    {
+      "id": "file-search", "component": "FileSearch", "anchor": "center-center",
+      "x": 0, "y": 0, "scale": 1, "enabled": false,
+      "props": {"root": "~"}
+    },
+    {
+      "id": "quick-links", "component": "QuickLinks", "anchor": "center-center",
+      "x": 0, "y": 0, "scale": 1, "enabled": false,
+      "props": {}
+    },
+    {
+      "id": "volume", "component": "Volume", "anchor": "bottom-center",
+      "x": -180, "y": 32, "scale": 1, "enabled": false
+    },
+    {
+      "id": "brightness", "component": "Brightness", "anchor": "bottom-center",
+      "x": 180, "y": 32, "scale": 1, "enabled": false
+    }
+  ]
+}
