@@ -230,7 +230,7 @@ class Window(Adw.ApplicationWindow):
         self.library_group = group
 
         self.grid = Gtk.FlowBox(selection_mode=Gtk.SelectionMode.NONE, homogeneous=True,
-                                min_children_per_line=1, max_children_per_line=3,
+                                min_children_per_line=3, max_children_per_line=3,
                                 row_spacing=12, column_spacing=12, margin_top=6)
         self.empty = Adw.StatusPage(icon_name="folder-pictures-symbolic", title="No wallpapers here yet",
                                     description="Put pictures or videos in this folder, choose another "
