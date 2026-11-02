@@ -10,6 +10,7 @@ import contextlib
 import fcntl
 import hashlib
 import json
+import logging
 import os
 import random
 import shutil
@@ -208,7 +209,8 @@ def set_wallpaper(path):
         raise ValueError("couldn't read a frame from this video (is VLC installed?)")
     pal = palette.from_image(still)
     with locked():
-        _save_state({"wallpaper": path, "still": still, "palette": pal, "changed": time.time()})
+        _save_state({"wallpaper": path, "still": still, "palette": pal,
+                     "palette_version": palette.EXTRACTION_VERSION, "changed": time.time()})
     apply_theme()
 
 
@@ -368,12 +370,23 @@ def _lock_screen(still):
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
 
 
+def _refresh_palette(state):
+    """Upgrade cached extraction once; missing or unreadable sources keep their last colours."""
+    if state.get("palette_version") != palette.EXTRACTION_VERSION and os.path.isfile(state.get("still") or ""):
+        try:
+            state["palette"] = palette.from_image(state["still"])
+            state["palette_version"] = palette.EXTRACTION_VERSION
+        except (OSError, ValueError, GLib.Error) as error:
+            logging.getLogger(__name__).warning("Cannot refresh wallpaper colours; keeping previous palette: %s", error)
+
+
 def apply_theme():
     """Recolour the session from the current wallpaper, in the current light/dark mode."""
     with locked():
         state, config = load_state(), load_config()
         if "palette" not in state:
             return
+        _refresh_palette(state)
         mode = effective_mode(config)
         dark = mode == "dark"
         p = state["palette"][mode]

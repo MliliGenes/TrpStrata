@@ -441,7 +441,7 @@ It restores your original look first, then removes the app.
 
 | Part | What it does |
 |---|---|
-| `trp_strata/palette.py` | Reads the picture at a tiny size and picks an accent colour (the picture's most vivid colour that stands out) plus neutrals tinted with its overall colour, in a light and a dark set. |
+| `trp_strata/palette.py` | Builds contrast-checked light/dark palettes from perceptually clustered wallpaper colours. `color_extraction.py` groups colours in OKLab, ignores tiny specks, and preserves muted accents. |
 | `trp_strata/core.py` | Applies them: a small GTK theme ("trpStrata A"/"B" in `~/.local/share/themes`, adw-gtk3 underneath plus your colours), the light/dark setting, a GNOME Terminal profile, and the lock-screen picture. Saves your original settings first. GTK only re-reads a theme when its name changes, so each recolour flips between the two identical copies and open apps restyle live. |
 | `trp_strata/desktop.py` | A small helper started at login. GNOME's own wallpaper is locked at 42, so it draws the wallpaper in a desktop window behind everything. Pictures cost almost nothing once drawn. Videos play through VLC and pause when a window is maximised or the screen is locked. It also handles the rotation timer and the auto light/dark switch. |
 | `trp_strata/app.py` | The window (GTK 4 + libadwaita). |

@@ -1,11 +1,11 @@
 """Colours from a picture: one accent and a family of tinted neutrals, in a light and a dark set.
 
-The accent is the picture's most vivid colour that stands out from its overall cast ("the pop":
-autumn leaves in a blue forest), nudged until it reads on both light and dark backgrounds. The
-neutrals take a tint of the cast, so the whole desktop feels like the picture.
+Colours are grouped perceptually in OKLab. Meaningful accent colours stand out from
+the dominant cast; tiny specks and transparent pixels do not drive the theme.
 """
 import colorsys
-import math
+
+EXTRACTION_VERSION = 2
 
 
 # --- colour maths -----------------------------------------------------------------
@@ -26,7 +26,7 @@ def hsl(h, s, l):
 
 def luminance(hexcolor):
     def lin(c):
-        return c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4
+        return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
     r, g, b = (lin(c) for c in hex_to_rgb(hexcolor))
     return 0.2126 * r + 0.7152 * g + 0.0722 * b
 
@@ -60,39 +60,17 @@ def image_colors(path, size=120):
     from gi.repository import GdkPixbuf
     pb = GdkPixbuf.Pixbuf.new_from_file_at_scale(path, size, size, True)
     data, stride, n = pb.get_pixels(), pb.get_rowstride(), pb.get_n_channels()
+    has_alpha = pb.get_has_alpha()
     samples = []
     for y in range(pb.get_height()):
         row = y * stride
         for x in range(pb.get_width()):
             i = row + x * n
+            if has_alpha and data[i + 3] < 128:
+                continue
             h, l, s = colorsys.rgb_to_hls(data[i] / 255, data[i + 1] / 255, data[i + 2] / 255)
             samples.append((h * 360, s, l))
     return samples
-
-
-BINS = 24            # colour families, 15° each
-POP_MIN = 0.006      # share of vivid colour a family needs before it can be the accent
-POP_DISTANCE = 60    # degrees of hue a "pop" accent must sit from the picture's main colour
-
-
-def hue_families(samples, weigh):
-    """Sum weigh(s, l) per hue family; returns per-bin mass and the weighted hue/sat inside each."""
-    mass = [0.0] * BINS
-    sx = [0.0] * BINS
-    sy = [0.0] * BINS
-    sat = [0.0] * BINS
-    for h, s_, l in samples:
-        w = weigh(s_, l)
-        if w <= 0:
-            continue
-        b = int(h / 360 * BINS) % BINS
-        mass[b] += w
-        sx[b] += math.cos(math.radians(h)) * w
-        sy[b] += math.sin(math.radians(h)) * w
-        sat[b] += s_ * w
-    hue = [math.degrees(math.atan2(sy[b], sx[b])) % 360 if mass[b] else b * 15 + 7.5 for b in range(BINS)]
-    avg_s = [sat[b] / mass[b] if mass[b] else 0 for b in range(BINS)]
-    return mass, hue, avg_s
 
 
 def hue_distance(a, b):
@@ -106,39 +84,14 @@ def from_image(path):
 
 
 def build(samples):
-    n = len(samples) or 1
-
-    # the picture's overall colour cast: most common hue among pixels that have any colour
-    cast_mass, cast_hue, cast_sat = hue_families(samples, lambda s_, l: 1.0 if s_ > 0.10 and 0.08 < l < 0.92 else 0)
-    coloured = sum(cast_mass) / n
-    top = max(range(BINS), key=lambda b: cast_mass[b] + 0.5 * (cast_mass[b - 1] + cast_mass[(b + 1) % BINS]))
-    dom_h, dom_s = cast_hue[top], cast_sat[top]
-
-    # the accent: the strongest colour that clearly differs from the cast, if it covers enough
-    # of the picture to matter; otherwise the main vivid colour itself
-    vivid_mass, vivid_hue, vivid_sat = hue_families(
-        samples, lambda s_, l: s_ * max(0.0, 1 - abs(l - 0.5) * 1.1) if s_ > 0.28 and 0.12 < l < 0.88 else 0)
-    smooth = [vivid_mass[b] + 0.5 * (vivid_mass[b - 1] + vivid_mass[(b + 1) % BINS]) for b in range(BINS)]
-    vivid = sum(vivid_mass) / n
-
-    mono = coloured < 0.06 or vivid < 0.012          # black-and-white or nearly so
-    if mono:
-        acc_h, acc_s = dom_h, 0.0
-    else:
-        main = max(range(BINS), key=lambda b: smooth[b])
-        pops = [b for b in range(BINS) if vivid_mass[b] and smooth[b] / n >= POP_MIN
-                and hue_distance(vivid_hue[b], vivid_hue[main]) >= POP_DISTANCE]
-        best = max(pops, key=lambda b: (smooth[b] / n) ** 0.5 * vivid_sat[b]) if pops else main
-        acc_h, acc_s = vivid_hue[best], min(max(vivid_sat[best], 0.55), 0.92)
+    from .color_extraction import select
+    dom_h, dom_s, acc_h, acc_s, mono = select(samples)
 
     # neutrals take a visible tint of the cast (none for black-and-white pictures)
     if mono or dom_s < 0.06:
-        tint_h, tint_s = dom_h, 0.03
+        tint_h, tint_s = dom_h, 0.0
     else:
         tint_h, tint_s = dom_h, min(dom_s, 0.45) * 0.85
-    # yellows and greens look muddy when darkened for contrast; keep them saturated
-    if not mono and 40 <= acc_h <= 170:
-        acc_s = max(acc_s, 0.75)
 
     def ansi(lightness, bright, sat):
         red_h, red_s = (6, sat) if mono else (acc_h, acc_s)
@@ -150,24 +103,24 @@ def build(samples):
     l_paper = hsl(tint_h, tint_s, 0.92)
     l_ink = hsl(tint_h, min(tint_s, 0.18), 0.11)
     if mono:                                          # graphite on paper, silver at night
-        l_accent, l_accent_text = hsl(tint_h, 0.04, 0.24), hsl(tint_h, 0.04, 0.20)
+        l_accent, l_accent_text = hsl(tint_h, 0, 0.24), hsl(tint_h, 0, 0.20)
     else:
         l_accent = reach_contrast(acc_h, acc_s, 0.50, l_paper, 3.2, -0.02)
         l_accent_text = reach_contrast(acc_h, acc_s, 0.42, l_paper, 4.6, -0.02)
-    l_on = "#FFFFFF" if contrast("#FFFFFF", l_accent) >= contrast(l_ink, l_accent) else l_ink
+    l_on = "#FFFFFF" if contrast("#FFFFFF", l_accent) >= contrast("#000000", l_accent) else "#000000"
     l_base, l_hi = ansi(0.38, 0.46, 0.55)
-    l_muted = hsl(tint_h, tint_s * 0.6, 0.42)
+    l_muted = reach_contrast(tint_h, tint_s * 0.6, 0.42, l_paper, 4.5, -0.01)
 
     d_paper = hsl(tint_h, tint_s * 0.9, 0.10)
     d_ink = hsl(tint_h, tint_s * 0.5, 0.90)
     if mono:
-        d_accent, d_accent_text = hsl(tint_h, 0.04, 0.80), hsl(tint_h, 0.04, 0.86)
+        d_accent, d_accent_text = hsl(tint_h, 0, 0.80), hsl(tint_h, 0, 0.86)
     else:
         d_accent = reach_contrast(acc_h, acc_s, 0.58, d_paper, 4.6, 0.02)
         d_accent_text = reach_contrast(acc_h, acc_s, 0.66, d_paper, 6.0, 0.02)
     d_on = d_paper if contrast(d_paper, d_accent) >= 4.5 else "#FFFFFF"
     d_base, d_hi = ansi(0.66, 0.76, 0.48)
-    d_muted = hsl(tint_h, tint_s * 0.5, 0.60)
+    d_muted = reach_contrast(tint_h, tint_s * 0.5, 0.60, hsl(tint_h, tint_s * 0.9, 0.14), 4.5, 0.01)
 
     return {
         "light": {
