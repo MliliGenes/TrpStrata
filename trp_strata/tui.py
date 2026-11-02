@@ -24,6 +24,7 @@ LABELS = {
     "layout_grid": "Snap to grid", "layout_grid_size": "Grid cell size (px)",
     "layout_grid_gap": "Grid spacing (px)",
     "widget_blur": "Frosted widget glass", "widget_blur_radius": "Glass blur radius",
+    "lock_password": "Lock-screen password",
     "logtime_username": "Logtime username", "logtime_goal": "Logtime goal (hours)",
 }
 CHOICES = {"mode": ("light", "dark", "auto"), "awake_method": ("mouse", "inhibit")}
