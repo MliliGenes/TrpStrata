@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "view": {
+    "type": "Column", "spacing": 10, "class_name": "launcher-card quick-links-card",
+    "children": [
+      {"type": "Text", "text": {"$bind": "state.title"}, "class_name": "widget-label", "align": "start"},
+      {"repeat": {"$bind": "state.links"}, "key": "id", "template": {
+        "type": "Button", "text": {"$bind": "item.label"}, "events": {"click": {"handler": "launch", "args": {"$bind": "item"}}},
+        "system_icon": {"$bind": "item.icon"}, "tooltip": {"$bind": "item.url"}
+      }},
+      {"type": "Text", "text": "Add websites using Edit beside Quick links in the app.", "wrap": true, "max_width_chars": 30, "align": "start", "visible": {"$bind": "state.show_hint"}},
+      {"type": "Text", "text": {"$bind": "state.status"}, "wrap": true, "max_width_chars": 30, "align": "start", "visible": {"$bind": "state.show_status"}}
+    ]
+  }
+}

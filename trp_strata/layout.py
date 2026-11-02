@@ -273,6 +273,9 @@ class ComponentLoader:
     def load(self, name):
         if not MODULE_NAME.fullmatch(name):
             raise ValueError(f"Custom component names must be Python module names: {name}")
+        package = Path(storage.CUSTOM_WIDGETS) / name
+        if package.is_dir():
+            return self.load_json(name, package / "view.json", package / "controller.py")
         json_path = Path(storage.CUSTOM_WIDGETS) / f"{name}.json"
         if json_path.exists():
             return self.load_json(name, json_path)
@@ -310,35 +313,51 @@ class ComponentLoader:
                 return previous[1]
             raise
 
-    def load_json(self, name, path):
+    def load_json(self, name, path, module_path=None):
         from .widget_controllers import CONTROLLERS
         from .widget_engine import Controller
         from .widget_views import definition
         previous = self.cache.get(name)
-        module_path = path.with_suffix(".py")
+        module_path = module_path or path.with_suffix(".py")
         try:
             source = path.read_text()
             module_source = module_path.read_text() if module_path.exists() else None
-            signature = (source, module_source)
+            signature = (str(path), source, str(module_path), module_source)
             if previous and previous[0] == signature:
                 return previous[1]
             controllers = dict(CONTROLLERS)
             if module_source is not None:
                 # Keep controller identity (and state) across view-only edits.
                 cached_module = self.cache.get((name, "controller"))
-                if cached_module and cached_module[0] == module_source:
+                module_signature = (str(module_path), module_source)
+                if cached_module and cached_module[0] == module_signature:
                     controller = cached_module[1]
                 else:
-                    namespace = {"__name__": f"trp_strata_controller_{name}", "__file__": str(module_path)}
-                    exec(compile(module_source, str(module_path), "exec"), namespace)
-                    controller = namespace.get("Controller")
-                    if not isinstance(controller, type) or not issubclass(controller, Controller):
-                        raise ValueError(f"{module_path.name} must export a Controller subclass")
+                    module_name = f"trp_strata_controller_{name}"
+                    spec = importlib.util.spec_from_file_location(module_name, module_path)
+                    module = importlib.util.module_from_spec(spec)
+                    old_module = sys.modules.get(module_name)
+                    sys.modules[module_name] = module
+                    try:
+                        exec(compile(module_source, str(module_path), "exec"), module.__dict__)
+                        controller = getattr(module, "Controller", None)
+                        if not isinstance(controller, type) or not issubclass(controller, Controller):
+                            raise ValueError(f"{module_path.name} must export a Controller subclass")
+                    except Exception:
+                        if old_module is None:
+                            sys.modules.pop(module_name, None)
+                        else:
+                            sys.modules[module_name] = old_module
+                        raise
                 controllers[name] = controller
-            factory = definition(json.loads(source), controllers)
+                controllers["local"] = controller
+            document = json.loads(source)
+            if isinstance(document, dict):
+                document.setdefault("controller", "local" if module_source is not None else "static")
+            factory = definition(document, controllers)
             self.cache[name] = (signature, factory)
             if module_source is not None:
-                self.cache[(name, "controller")] = (module_source, controller)
+                self.cache[(name, "controller")] = (module_signature, controller)
             return factory
         except Exception:
             if previous:

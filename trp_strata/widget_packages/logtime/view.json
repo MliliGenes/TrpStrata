@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "view": {
+    "type": "Column", "spacing": 8, "class_name": "logtime-card",
+    "children": [
+      {"type": "Text", "text": {"$bind": "state.login"}, "class_name": "logtime-login", "key": "login"},
+      {"type": "Ring", "value": {"$bind": "state.fraction"}, "class_name": "logtime-ring", "key": "ring", "children": [
+        {"type": "Text", "text": {"$bind": "state.percent"}, "class_name": "logtime-percent", "key": "percent"},
+        {"type": "Text", "text": {"$bind": "state.hours"}, "class_name": "logtime-hours", "key": "hours"},
+        {"type": "Text", "text": "Hours", "class_name": "logtime-unit"}
+      ]},
+      {"type": "Text", "text": {"$bind": "state.month"}, "class_name": "widget-label", "key": "month"},
+      {"type": "Text", "text": {"$bind": "state.period"}, "class_name": "logtime-period", "key": "period"},
+      {"type": "Row", "spacing": 8, "children": [
+        {"type": "Button", "text": "Prev", "events": {"click": {"handler": "shift", "args": -1}}, "expand": true, "key": "prev"},
+        {"type": "Button", "text": "Next", "events": {"click": {"handler": "shift", "args": 1}}, "expand": true, "key": "next"}
+      ]},
+      {"type": "Button", "text": {"$bind": "state.refresh_label"}, "events": {"click": "reload"}, "sensitive": {"$bind": "state.can_refresh"}, "key": "refresh"},
+      {"type": "Text", "text": {"$bind": "state.status"}, "wrap": true, "max_width_chars": 30, "class_name": "logtime-status", "key": "status"}
+    ]
+  }
+}

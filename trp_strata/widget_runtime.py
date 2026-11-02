@@ -20,6 +20,7 @@ from .gtk_renderer import Renderer  # noqa: E402
 from .glass import WallpaperGlass  # noqa: E402
 from .widget_engine import WidgetEngine, Context  # noqa: E402
 from .gtk_widget_styles import validate_tree  # noqa: E402
+from .widget_watch import WidgetWatch  # noqa: E402
 
 log = logging.getLogger(__name__)
 
@@ -118,8 +119,7 @@ class DesktopWidgets:
         self.window.connect("realize", lambda *_: self.input_region())
         self.window.connect("size-allocate", lambda *_: self.position())
         self.screen_handler = screen.connect("monitors-changed", lambda *_: self.position())
-        self.module_monitor = Gio.File.new_for_path(storage.CUSTOM_WIDGETS).monitor_directory(Gio.FileMonitorFlags.NONE, None)
-        self.module_monitor.connect("changed", self.on_module_change)
+        self.module_monitor = WidgetWatch(storage.CUSTOM_WIDGETS, self.on_module_change)
         self.provider = None
         self.engine = WidgetEngine(defer=GLib.idle_add, repeat=GLib.timeout_add,
                                    cancel=GLib.source_remove,
@@ -228,11 +228,10 @@ class DesktopWidgets:
         return (max(0, min(max(0, self.area[2] - width), round(x))),
                 max(0, min(max(0, self.area[3] - height), round(y))))
 
-    def on_module_change(self, _monitor, file, _other, _event):
-        if file.get_basename().endswith((".py", ".json")):
-            if self.module_timer:
-                GLib.source_remove(self.module_timer)
-            self.module_timer = GLib.timeout_add(300, self.reload_modules)
+    def on_module_change(self):
+        if self.module_timer:
+            GLib.source_remove(self.module_timer)
+        self.module_timer = GLib.timeout_add(300, self.reload_modules)
 
     def reload_modules(self):
         self.module_timer = 0

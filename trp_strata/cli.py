@@ -28,9 +28,10 @@ def parser():
     layout_parser = commands.add_parser("layout", help="Arrange desktop widgets, toggle individual cards or reset their layout")
     layout_parser.add_argument("action", choices=("edit", "done", "reset", "path", "list", "enable", "disable", "toggle"), nargs="?", default="edit")
     layout_parser.add_argument("widget_id", nargs="?")
-    widget = commands.add_parser("widget", help="Export editable JSON widget views")
-    widget.add_argument("action", choices=("export", "list"))
+    widget = commands.add_parser("widget", help="List, export or copy editable widget packages")
+    widget.add_argument("action", choices=("export", "list", "copy"))
     widget.add_argument("name", nargs="?")
+    widget.add_argument("destination", nargs="?")
     config = commands.add_parser("config", help="Inspect or change preferences").add_subparsers(dest="config_command")
     config.add_parser("list", help="List values and descriptions")
     config.add_parser("path", help="Print the configuration file path")
@@ -61,6 +62,15 @@ def main(argv=None):
             from .widget_builtin_views import VIEWS, document
             if args.action == "list":
                 print("\n".join(VIEWS))
+            elif args.action == "copy":
+                from .widget_packages import copy_builtin
+                if args.name is None or args.destination is None:
+                    raise ValueError("usage: trpstrata widget copy BUILTIN NAME")
+                path = copy_builtin(args.name, args.destination)
+                print(f"Created {path}")
+                print("Edit view.json for presentation and controller.py for logic.")
+                print("Add this entry to layout.json widgets:")
+                print(json.dumps({"id": args.destination, "component": args.destination, "anchor": "top-left"}, indent=2))
             else:
                 if args.name not in VIEWS:
                     raise ValueError("Choose a built-in widget from: " + ", ".join(VIEWS))

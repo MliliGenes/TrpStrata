@@ -21,7 +21,7 @@ def main():
                     log.seek(0)
                     raise RuntimeError(log.read().decode())
                 time.sleep(.05)
-            for script in sys.argv[1:] or ["smoke_widgets.py", "smoke_widget_engine.py"]:
+            for script in sys.argv[1:] or ["smoke_widgets.py", "smoke_widget_engine.py", "smoke_widget_packages.py"]:
                 result = subprocess.run([sys.executable, str(root / "tests" / script)],
                                         env=env, cwd=root, timeout=40)
                 if result.returncode:

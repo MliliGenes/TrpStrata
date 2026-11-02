@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "view": {
+    "type": "Column", "spacing": 10, "class_name": "launcher-card",
+    "children": [
+      {"type": "Text", "text": {"$bind": "state.title"}, "class_name": "widget-label", "align": "start"},
+      {"type": "Search", "text": {"$bind": "state.query"}, "events": {"change": "search"}, "placeholder": "Search installed apps…", "key": "app-search"},
+      {"type": "Grid", "columns": ["1fr", "1fr", "1fr"], "spacing": 8, "children": [
+        {"repeat": {"$bind": "state.apps"}, "key": "id", "template": {
+          "type": "Button", "text": {"$bind": "item.name"}, "events": {"click": {"handler": "launch", "args": {"$bind": "item.id"}}},
+          "system_icon": {"$bind": "item.icon"}, "tooltip": {"$bind": "item.tooltip"}, "icon_position": "top", "expand": true, "class_name": "launcher-app"
+        }},
+        {"repeat": {"$bind": "state.empty"}, "key": "id", "template": {"type": "Column", "class_name": "launcher-empty", "expand": true}}
+      ]},
+      {"type": "Text", "text": {"$bind": "state.hint"}, "wrap": true, "max_width_chars": 30, "align": "start", "visible": {"$bind": "state.show_hint"}},
+      {"type": "Row", "visible": {"$bind": "state.show_pages"}, "spacing": 8, "children": [
+        {"type": "Button", "text": "Previous", "events": {"click": {"handler": "move", "args": -1}}, "sensitive": {"$bind": "state.can_previous"}},
+        {"type": "Text", "text": {"$bind": "state.page"}, "expand": true},
+        {"type": "Button", "text": "Next", "events": {"click": {"handler": "move", "args": 1}}, "sensitive": {"$bind": "state.can_next"}}
+      ]},
+      {"type": "Text", "text": {"$bind": "state.status"}, "wrap": true, "max_width_chars": 30, "align": "start", "visible": {"$bind": "state.show_status"}}
+    ]
+  }
+}

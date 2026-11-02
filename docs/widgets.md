@@ -1,7 +1,9 @@
 # Desktop widgets and customization
 
 Built-in widgets now use a shared engine with editable JSON views and independent
-Python controllers. See [Widget engine](widget-engine.md) for exporting a view,
+Python controllers. Each built-in has its own `view.json` and `controller.py` package.
+Use `trpstrata widget copy Clock my_clock` to create an editable copy in your config
+directory. See [Widget engine](widget-engine.md) for copying packages, exporting a view,
 grid layouts, structured styles, state bindings, and event handlers. Existing
 custom Python components and GTK CSS remain supported.
 

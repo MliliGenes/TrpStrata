@@ -2,6 +2,9 @@
 
 All twelve built-in widget types now run through one `WidgetEngine`. Each instance
 has independent state, a controller, managed resources, and a declarative view.
+Their source packages live in `trp_strata/widget_packages/<name>/`, with an actual
+`view.json` and `controller.py` for each widget. Shared lifecycle helpers and backend
+models remain reusable Python modules.
 The desktop host still owns the transparent window, positioning, dragging, sizing,
 wallpaper glass, and input regions. GTK 3 remains the widget renderer.
 
@@ -22,6 +25,42 @@ layout.json                  widget JSON / Python controller
 ```
 
 ## Customize an existing widget
+
+Copy a built-in into your personal widget directory:
+
+```sh
+trpstrata widget copy Clock my_clock
+```
+
+This creates:
+
+```text
+~/.config/trpstrata/widgets/my_clock/
+├── view.json       layout, styles, bindings and named events
+└── controller.py   state, lifecycle and event handlers
+```
+
+Add the layout entry printed by the command to `layout.json`. Existing instances
+can also use `"component": "my_clock"`. The copied controller is editable Python
+code which can continue importing shared framework helpers and backend models.
+The command refuses to overwrite an existing widget or same-name flat custom file.
+
+Built-in packages belong to the installed application (under `goinfre` when that
+storage is available). Your copies belong to `.config`, survive application updates,
+and can be edited independently. `XDG_CONFIG_HOME` is respected.
+
+Package views automatically use the adjacent `controller.py`, which must export a
+`Controller` subclass. A package without a controller uses the static controller.
+An explicit `"controller": "clock"` can reuse registered built-in logic; omit that
+field or use `"controller": "local"` to select the adjacent controller.
+
+Folders are discovered automatically, including new folders created while the app
+is running. Editing either file reloads the widget. Atomic editor saves work too.
+View-only edits retain instance state; controller-source changes replace the
+controller and clean up its old resources. Removing a built-in override folder
+restores the built-in definition (or a same-name flat JSON override, if present).
+
+### Standalone JSON compatibility
 
 List the available built-in views and export one:
 
@@ -44,8 +83,9 @@ View edits reload live, retaining controller state when the controller class sta
 the same. Invalid JSON/schema edits retain the previous definition; binding/render
 errors retain the last rendered tree and are logged in the helper log. Changing
 controller source replaces the controller and its state. Existing custom Python
-files exporting `@component def Widget(...)` remain supported. A `.json` view takes
-precedence over the same-name `.py` component.
+files exporting `@component def Widget(...)` remain supported. A package folder takes
+precedence over a same-name flat `.json` view, which takes precedence over a built-in
+or a same-name legacy `.py` component. Legacy Python files do not override built-in names.
 
 ## View format
 
@@ -163,7 +203,7 @@ continue using GTK-supported units.
 
 ## Custom controller and events
 
-Create `widgets/counter.py`:
+Create `widgets/counter/controller.py`:
 
 ```python
 from trp_strata.widget_engine import Controller as BaseController, handler
@@ -177,12 +217,11 @@ class Controller(BaseController):
         ctx.set_state(count=ctx.state["count"] + 1)
 ```
 
-And `widgets/counter.json`:
+And `widgets/counter/view.json`:
 
 ```json
 {
   "version": 1,
-  "controller": "counter",
   "props": {"initial": 0},
   "view": {
     "type": "Column",
@@ -236,4 +275,5 @@ path. The host's lock-visibility check does not itself rebuild every widget.
 
 The native runner uses an isolated Broadway display and checks existing desktop
 behavior plus structured styles, mixed fractional grid sizing, state-preserving
-view reload, and event dispatch.
+view reload, event dispatch, package creation/removal, actual filesystem notifications,
+atomic saves, controller replacement, and watcher cleanup.

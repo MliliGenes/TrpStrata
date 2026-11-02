@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "view": {
+    "type": "Column", "spacing": 12, "class_name": "system-card",
+    "children": [
+      {"type": "Text", "text": "HOME CLEANER", "class_name": "widget-label", "align": "start"},
+      {"type": "Text", "text": {"$bind": "state.status"}, "wrap": true, "max_width_chars": 36, "align": "start"},
+      {"type": "Text", "text": "Close VS Code and Firefox first.", "wrap": true, "max_width_chars": 36},
+      {"type": "Row", "spacing": 8, "children": [
+        {"type": "Button", "text": "Scan", "events": {"click": "scan"}, "sensitive": {"$bind": "state.enabled"}},
+        {"type": "Button", "text": "Clean caches", "events": {"click": "clean"}, "sensitive": {"$bind": "state.enabled"}}
+      ]}
+    ]
+  }
+}

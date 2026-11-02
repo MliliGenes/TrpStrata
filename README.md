@@ -402,11 +402,18 @@ live. Use `em` units so your styles scale with the card:
 }
 ```
 
-GTK CSS handles appearance; web placement properties such as `position`, `top`, Flexbox
-and Grid are handled instead by the desktop layout. Add your own component file to
-`~/.config/trpstrata/widgets/`, export a `@component` function named `Widget`, and
-reference its filename in `layout.json`. No core registration is needed. See the
-[widget guide](docs/widgets.md) for a complete example and the GTK API reading path.
+GTK CSS handles appearance. Structured widget views add grids, spacing, sizing,
+padding, state bindings, and named event handlers. Start an editable widget package:
+
+```sh
+trpstrata widget copy Clock my_clock
+```
+
+Edit `~/.config/trpstrata/widgets/my_clock/view.json` for presentation and
+`controller.py` for behavior, then reference `my_clock` in `layout.json` using the
+entry printed by the command. View changes reload live without resetting controller
+state. See the [widget engine guide](docs/widget-engine.md) for the JSON format and
+handler API. Legacy Python `@component` widgets and standalone JSON views still work.
 User files survive updates; `XDG_CONFIG_HOME` is respected. Edit `app.css` for the GTK 4
 control panel; the desktop components use GTK 3 in a separate process.
 

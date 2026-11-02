@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "view": {
+    "type": "Column", "spacing": 10, "class_name": "desktop-clock",
+    "visible": {"$bind": "state.visible"},
+    "children": [
+      {"type": "Text", "text": {"$bind": "state.time"}, "class_name": "clock-time", "key": "time"},
+      {"type": "Text", "text": {"$bind": "state.date"}, "class_name": "clock-date", "visible": {"$bind": "state.show_date"}, "key": "date"}
+    ]
+  }
+}
