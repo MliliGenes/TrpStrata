@@ -18,11 +18,12 @@ window#ws-desktop-widgets decoration,
 }
 
 #ws-desktop-widgets .desktop-widget {
-  background: alpha(@ws_tile_dark, 0.72);
-  color: @ws_tile_light;
-  border: 1px solid transparent;
+  /* Use the generated wallpaper surface as the card tint, not a fixed dark tile. */
+  background: alpha(@ws_sheet, 0.78);
+  color: @ws_ink;
+  border: 1px solid alpha(@ws_accent, 0.24);
   border-radius: 1.5em;
-  padding: 1.25em;
+  padding: 1.5em;
   min-width: 13em;
   font-family: "Inter", "DejaVu Sans", sans-serif;
   box-shadow: none;
@@ -61,13 +62,14 @@ window#ws-desktop-widgets decoration,
 #ws-desktop-widgets .desktop-widget.glass,
 #ws-desktop-widgets #widget-calendar.glass,
 #ws-desktop-widgets #widget-notes.glass {
-  background: alpha(@ws_tile_dark, 0.78);
-  color: @ws_tile_light;
+  background: alpha(@ws_sheet, 0.58);
+  color: @ws_ink;
+  border-color: alpha(@ws_accent, 0.3);
 }
 #ws-desktop-widgets.glass-ready .desktop-widget.glass,
 #ws-desktop-widgets.glass-ready #widget-calendar.glass,
 #ws-desktop-widgets.glass-ready #widget-notes.glass {
-  background: alpha(@ws_tile_dark, 0.45);
+  background: alpha(@ws_sheet, 0.38);
 }
 #ws-desktop-widgets .desktop-widget.glass.glass-mask,
 #ws-desktop-widgets #widget-calendar.glass.glass-mask,
@@ -86,7 +88,7 @@ window#ws-desktop-widgets decoration,
 #ws-desktop-widgets .widget-label,
 #ws-desktop-widgets .clock-date,
 #ws-desktop-widgets .logtime-login {
-  color: inherit;
+  color: @ws_muted;
   font-size: 0.78em;
   font-weight: 500;
   letter-spacing: 0.08em;
@@ -97,9 +99,9 @@ window#ws-desktop-widgets decoration,
 }
 #ws-desktop-widgets .clock-time {
   font-family: "Doto", "DejaVu Sans Mono", monospace;
-  font-size: 3.8em;
+  font-size: 6.2em;
   font-weight: 400;
-  color: inherit;
+  color: @ws_accent_text;
 }
 #ws-desktop-widgets .clock-date {
   color: inherit;
@@ -109,7 +111,7 @@ window#ws-desktop-widgets decoration,
   font-family: "DejaVu Serif", serif;
   font-size: 5em;
   font-weight: 400;
-  color: inherit;
+  color: @ws_accent_text;
 }
 #ws-desktop-widgets .calendar-cell,
 #ws-desktop-widgets .calendar-weekday {
@@ -131,7 +133,7 @@ window#ws-desktop-widgets decoration,
 #ws-desktop-widgets .logtime-percent {
   font-family: "Doto", "DejaVu Sans Mono", monospace;
   font-weight: 500;
-  color: inherit;
+  color: @ws_accent_text;
 }
 #ws-desktop-widgets .notes-text {
   font-size: 1.05em;
@@ -142,7 +144,7 @@ window#ws-desktop-widgets decoration,
 /* Flat progress tracks and a single strong signal colour. */
 #ws-desktop-widgets .system-card progressbar trough {
   min-height: 0.4em;
-  background: alpha(@ws_tile_light, 0.16);
+  background: alpha(@ws_accent, 0.18);
   border: none;
   border-radius: 999px;
   box-shadow: none;
@@ -171,7 +173,7 @@ window#ws-desktop-widgets decoration,
 #ws-desktop-widgets .logtime-hours {
   font-size: 4.5em;
   font-weight: 300;
-  color: inherit;
+  color: @ws_accent_text;
 }
 #ws-desktop-widgets .logtime-unit {
   font-size: 0.85em;
@@ -187,9 +189,9 @@ window#ws-desktop-widgets decoration,
 
 /* Pill controls: no gradients, glow or raised native-theme surfaces. */
 #ws-desktop-widgets .desktop-widget button {
-  background: alpha(@ws_tile_light, 0.08);
+  background: alpha(@ws_accent, 0.08);
   color: inherit;
-  border: 1px solid alpha(@ws_tile_light, 0.12);
+  border: 1px solid alpha(@ws_accent, 0.25);
   border-radius: 999px;
   padding: 0.55em 1em;
   min-height: 1.2em;
@@ -214,10 +216,10 @@ window#ws-desktop-widgets decoration,
   color: @ws_tile_muted;
 }
 #ws-desktop-widgets .desktop-widget entry {
-  background: alpha(@ws_tile_light, 0.06);
+  background: alpha(@ws_accent, 0.06);
   color: inherit;
   caret-color: @ws_tile_red;
-  border: 1px solid alpha(@ws_tile_light, 0.15);
+  border: 1px solid alpha(@ws_accent, 0.24);
   border-radius: 999px;
   padding: 0.6em 0.9em;
   box-shadow: none;
@@ -244,6 +246,7 @@ window#ws-desktop-widgets decoration,
   font-weight: 400;
   font-size: 0.9em;
 }
+
 #ws-desktop-widgets .launcher-dock button.launcher-app {
   min-width: 48px;
   min-height: 48px;
@@ -259,15 +262,15 @@ window#ws-desktop-widgets decoration,
   padding: 0.35em;
 }
 #ws-desktop-widgets .launcher-dock .dock-search {
-  min-width: 10em;
-  margin-left: 0.4em;
+  min-width: 20em;
+  margin-left: 0.7em;
 }
 #ws-desktop-widgets .device-card scale {
   min-width: 14em;
 }
 #ws-desktop-widgets .device-card scale trough {
   min-height: 0.5em;
-  background: alpha(@ws_tile_light, 0.16);
+  background: alpha(@ws_accent, 0.18);
   border: none;
   border-radius: 999px;
 }
@@ -277,8 +280,8 @@ window#ws-desktop-widgets decoration,
   border-radius: 999px;
 }
 #ws-desktop-widgets .device-card scale slider {
-  background: @ws_tile_light;
-  border: 2px solid @ws_tile_dark;
+  background: @ws_paper2;
+  border: 2px solid @ws_accent;
   min-width: 1.15em;
   min-height: 1.15em;
   border-radius: 999px;
@@ -292,15 +295,15 @@ window#ws-desktop-widgets decoration,
 #ws-desktop-widgets .media-title {
   font-size: 1.15em;
   font-weight: 500;
-  color: inherit;
+  color: @ws_accent_text;
 }
 #ws-desktop-widgets .widget-image {
   min-width: 10em;
   min-height: 10em;
 }
 #ws-desktop-widgets .media-artwork {
-  min-width: 18em;
-  min-height: 18em;
+  min-width: 20em;
+  min-height: 20em;
 }
 #ws-desktop-widgets .media-card button.media-control {
   font-size: 1.2em;

@@ -13,9 +13,7 @@
           {"type": "Button", "text": "›", "tooltip": "Next applications", "class_name": "dock-page", "events": {"click": {"handler": "move", "args": 1}}, "sensitive": {"$bind": "state.can_next"}}
         ]},
         {"type": "Search", "text": {"$bind": "state.query"}, "events": {"change": "search"}, "placeholder": "Search apps…", "key": "app-search", "class_name": "dock-search"}
-      ]},
-      {"type": "Text", "text": {"$bind": "state.hint"}, "wrap": true, "max_width_chars": 45, "align": "start", "visible": {"$bind": "state.show_hint"}},
-      {"type": "Text", "text": {"$bind": "state.status"}, "wrap": true, "max_width_chars": 45, "align": "start", "visible": {"$bind": "state.show_status"}}
+      ]}
     ]
   }
 }
