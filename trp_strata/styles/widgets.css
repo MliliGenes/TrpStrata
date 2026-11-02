@@ -1,275 +1,280 @@
-/* Open, background-free widgets. Theme colours follow the wallpaper palette.
-   Add class_name: "glass" to a layout entry to opt that card into frosted glass. */
+/* Modular monochrome tiles inspired by the supplied reference.
+   Optional layout class_name values: light, red, transparent, glass.
+   Doto supplies dotted numerals when installed; monospace is the fallback. */
+@define-color ws_tile_dark #171c19;
+@define-color ws_tile_light #f7f7f5;
+@define-color ws_tile_red #df1521;
+@define-color ws_tile_red_hover #f02935;
+@define-color ws_tile_muted #a6ada8;
+@define-color ws_tile_light_muted #626b65;
+
 window#ws-desktop-widgets,
-window#ws-desktop-widgets decoration {
-  background: transparent;
-  box-shadow: none;
-  border: none;
-}
+window#ws-desktop-widgets decoration,
 #desktop-layout {
   background: transparent;
-}
-#ws-desktop-widgets .desktop-widget {
-  background: transparent;
-  color: @ws_ink;
-  border: 1px solid transparent;
-  border-radius: 0.8em;
-  padding: 0.75em 1em;
-  min-width: 13em;
+  border: none;
   box-shadow: none;
-  font-family: Sans;
+}
+
+#ws-desktop-widgets .desktop-widget {
+  background: @ws_tile_dark;
+  color: @ws_tile_light;
+  border: 1px solid transparent;
+  border-radius: 1.5em;
+  padding: 1.25em;
+  min-width: 13em;
+  font-family: "Inter", "DejaVu Sans", sans-serif;
+  box-shadow: none;
 }
 #ws-desktop-widgets .desktop-widget label {
-  text-shadow: 0 1px 3px alpha(@ws_shadow, 0.5);
+  text-shadow: none;
 }
-/* The runtime samples this mask when painting wallpaper blur. A transparent mask
-   is essential: removing the card colour alone would still leave a blurred panel. */
-#ws-desktop-widgets .desktop-widget.glass-mask {
-  background-color: transparent;
-  background-image: none;
+
+/* Light tiles for the default calendar/notes; custom instances can use "light". */
+#ws-desktop-widgets #widget-calendar,
+#ws-desktop-widgets #widget-notes,
+#ws-desktop-widgets .desktop-widget.light {
+  background: @ws_tile_light;
+  color: @ws_tile_dark;
+}
+#ws-desktop-widgets .desktop-widget.red,
+#ws-desktop-widgets #widget-calendar.red,
+#ws-desktop-widgets #widget-notes.red {
+  background: @ws_tile_red;
+  color: @ws_tile_light;
+}
+#ws-desktop-widgets .desktop-widget.transparent,
+#ws-desktop-widgets #widget-calendar.transparent,
+#ws-desktop-widgets #widget-notes.transparent {
+  background: transparent;
+  color: @ws_ink;
+}
+
+/* Keep flat surfaces free of the runtime's wallpaper-blur mask. */
+#ws-desktop-widgets .desktop-widget.glass-mask,
+#ws-desktop-widgets #widget-calendar.glass-mask,
+#ws-desktop-widgets #widget-notes.glass-mask {
+  background: transparent;
   box-shadow: none;
 }
-#ws-desktop-widgets .desktop-widget.glass {
-  background-color: alpha(@ws_sheet, 0.65);
-  border-color: alpha(@ws_accent, 0.2);
+#ws-desktop-widgets .desktop-widget.glass,
+#ws-desktop-widgets #widget-calendar.glass,
+#ws-desktop-widgets #widget-notes.glass {
+  background: alpha(@ws_tile_dark, 0.78);
+  color: @ws_tile_light;
 }
-#ws-desktop-widgets.glass-ready .desktop-widget.glass {
-  background-color: alpha(@ws_sheet, 0.3);
+#ws-desktop-widgets.glass-ready .desktop-widget.glass,
+#ws-desktop-widgets.glass-ready #widget-calendar.glass,
+#ws-desktop-widgets.glass-ready #widget-notes.glass {
+  background: alpha(@ws_tile_dark, 0.45);
 }
-#ws-desktop-widgets .desktop-widget.glass.glass-mask {
-  background-color: white;
+#ws-desktop-widgets .desktop-widget.glass.glass-mask,
+#ws-desktop-widgets #widget-calendar.glass.glass-mask,
+#ws-desktop-widgets #widget-notes.glass.glass-mask {
+  background: white;
 }
 #ws-desktop-widgets.layout-edit .desktop-widget {
-  border: 1px dashed @ws_accent;
-}
-#ws-desktop-widgets .desktop-clock {
-  background: transparent;
-  border: none;
-  padding: 0.3em 0.5em;
-}
-#ws-desktop-widgets .desktop-widget .clock-time {
-  font-size: 4em;
-  font-weight: 300;
-  color: mix(@ws_ink, @ws_accent_text, 0.2);
-  text-shadow: 0 2px 8px alpha(@ws_shadow, 0.45);
-}
-#ws-desktop-widgets .clock-date {
-  font-size: 0.95em;
-  font-weight: 500;
-  color: mix(@ws_ink, @ws_accent_text, 0.55);
-}
-#ws-desktop-widgets .widget-label {
-  font-size: 0.78em;
-  font-weight: 600;
-  color: @ws_accent_text;
-}
-#ws-desktop-widgets .calendar-day {
-  font-size: 3.5em;
-  font-weight: 300;
-  color: @ws_accent_text;
-}
-#ws-desktop-widgets .calendar-cell,
-#ws-desktop-widgets .calendar-weekday {
-  min-width: 1.8em;
-  min-height: 1.8em;
-  font-size: 0.8em;
-}
-#ws-desktop-widgets .calendar-weekday {
-  color: mix(@ws_muted, @ws_ink, 0.3);
-  font-weight: 600;
-}
-#ws-desktop-widgets .calendar-cell.today {
-  background-color: alpha(@ws_accent, 0.16);
-  background-image: none;
-  color: @ws_accent_text;
-  font-weight: bold;
-  border-radius: 0.5em;
-  box-shadow: inset 0 -2px 0 alpha(@ws_accent, 0.8);
-}
-#ws-desktop-widgets .metric-value {
-  font-weight: 600;
-  font-family: monospace;
-  color: @ws_accent_text;
-}
-#ws-desktop-widgets .system-card progressbar trough {
-  min-height: 0.3em;
-  border-radius: 0.3em;
-  background-image: none;
-  background-color: alpha(@ws_ink, 0.16);
-  border: none;
-}
-#ws-desktop-widgets .system-card progressbar progress {
-  min-height: 0.3em;
-  border-radius: 0.3em;
-  background-color: @ws_accent;
-  background-image: linear-gradient(
-    to right,
-    @ws_accent,
-    @ws_accent_text
-  );
-  border: none;
-  box-shadow: none;
-}
-#ws-desktop-widgets .notes-text {
-  font-size: 1.05em;
-  color: mix(@ws_ink, @ws_accent_text, 0.1);
-  border-left: 2px solid alpha(@ws_accent, 0.6);
-  padding-left: 0.8em;
+  border: 1px dashed @ws_tile_red;
 }
 #ws-desktop-widgets .resize-grip {
-  color: @ws_accent;
-  font-size: 1em;
+  color: @ws_tile_red;
   padding: 0.35em;
 }
 
-/* Logtime: the reference's open ring and large hours, in the desktop palette. */
+/* Quiet captions and oversized, instrument-like readings. */
+#ws-desktop-widgets .widget-label,
+#ws-desktop-widgets .clock-date,
+#ws-desktop-widgets .logtime-login {
+  color: inherit;
+  font-size: 0.78em;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+}
+#ws-desktop-widgets .desktop-clock {
+  background: transparent;
+  padding: 0.75em 0.35em;
+}
+#ws-desktop-widgets .clock-time {
+  font-family: "Doto", "DejaVu Sans Mono", monospace;
+  font-size: 3.8em;
+  font-weight: 400;
+  color: inherit;
+}
+#ws-desktop-widgets .clock-date {
+  color: inherit;
+  padding-top: 0.25em;
+}
+#ws-desktop-widgets .calendar-day {
+  font-family: "DejaVu Serif", serif;
+  font-size: 5em;
+  font-weight: 400;
+  color: inherit;
+}
+#ws-desktop-widgets .calendar-cell,
+#ws-desktop-widgets .calendar-weekday {
+  min-width: 1.9em;
+  min-height: 1.9em;
+  font-size: 0.78em;
+}
+#ws-desktop-widgets .calendar-weekday {
+  color: inherit;
+  font-weight: 600;
+}
+#ws-desktop-widgets .calendar-cell.today {
+  background: @ws_tile_red;
+  color: @ws_tile_light;
+  border-radius: 999px;
+  font-weight: 600;
+}
+#ws-desktop-widgets .metric-value,
+#ws-desktop-widgets .logtime-percent {
+  font-family: "Doto", "DejaVu Sans Mono", monospace;
+  font-weight: 500;
+  color: inherit;
+}
+#ws-desktop-widgets .notes-text {
+  font-size: 1.05em;
+  color: inherit;
+  padding: 0.3em 0;
+}
+
+/* Flat progress tracks and a single strong signal colour. */
+#ws-desktop-widgets .system-card progressbar trough {
+  min-height: 0.4em;
+  background: alpha(@ws_tile_light, 0.16);
+  border: none;
+  border-radius: 999px;
+  box-shadow: none;
+}
+#ws-desktop-widgets .system-card progressbar progress {
+  min-height: 0.4em;
+  background: @ws_tile_red;
+  border: none;
+  border-radius: 999px;
+  box-shadow: none;
+}
 #ws-desktop-widgets .logtime-card {
   min-width: 19em;
 }
 #ws-desktop-widgets .logtime-login {
   background: transparent;
-  color: @ws_accent_text;
   border: none;
-  padding: 0.35em 0;
+  padding: 0.4em 0;
   font-family: monospace;
-  font-weight: bold;
 }
 #ws-desktop-widgets .progress-ring {
   min-width: 16em;
   min-height: 16em;
-  color: @ws_accent;
-}
-#ws-desktop-widgets .logtime-percent {
-  color: @ws_accent_text;
-  font-size: 1em;
-  font-weight: bold;
+  color: @ws_tile_red;
 }
 #ws-desktop-widgets .logtime-hours {
-  color: mix(@ws_ink, @ws_accent_text, 0.1);
   font-size: 4.5em;
   font-weight: 300;
+  color: inherit;
 }
 #ws-desktop-widgets .logtime-unit {
-  color: @ws_accent_text;
-  font-size: 1.1em;
+  font-size: 0.85em;
+  color: inherit;
 }
-#ws-desktop-widgets .logtime-period {
-  color: @ws_ink;
+#ws-desktop-widgets .logtime-period,
+#ws-desktop-widgets .logtime-status,
+#ws-desktop-widgets .file-search-path,
+#ws-desktop-widgets .media-detail {
   font-size: 0.8em;
+  color: @ws_tile_muted;
 }
-#ws-desktop-widgets .logtime-status {
-  color: @ws_muted;
-  font-size: 0.8em;
-}
+
+/* Pill controls: no gradients, glow or raised native-theme surfaces. */
 #ws-desktop-widgets .desktop-widget button {
-  background-color: transparent;
-  background-image: none;
-  color: @ws_ink;
-  border: 1px solid alpha(@ws_accent, 0.18);
-  border-radius: 0.7em;
-  padding: 0.45em 0.8em;
-  min-height: 1.1em;
+  background: alpha(@ws_tile_light, 0.08);
+  color: inherit;
+  border: 1px solid alpha(@ws_tile_light, 0.12);
+  border-radius: 999px;
+  padding: 0.55em 1em;
+  min-height: 1.2em;
   box-shadow: none;
-  text-shadow: none;
-}
-#ws-desktop-widgets .desktop-widget button label {
   text-shadow: none;
 }
 #ws-desktop-widgets .desktop-widget button:hover {
-  background-color: alpha(@ws_accent, 0.12);
-  border-color: alpha(@ws_accent, 0.5);
-  color: @ws_accent_text;
-}
-#ws-desktop-widgets .desktop-widget button:active {
-  background-color: alpha(@ws_accent, 0.22);
-  border-color: @ws_accent;
-}
-#ws-desktop-widgets .desktop-widget button:disabled {
-  color: alpha(@ws_muted, 0.65);
-  border-color: alpha(@ws_muted, 0.12);
-  background: transparent;
+  background: alpha(@ws_tile_light, 0.16);
+  border-color: alpha(@ws_tile_light, 0.3);
 }
 #ws-desktop-widgets .desktop-widget button:focus {
-  border-color: @ws_accent;
+  border-color: @ws_tile_red;
+}
+#ws-desktop-widgets .desktop-widget button:active {
+  background: @ws_tile_red;
+  border-color: @ws_tile_red;
+  color: @ws_tile_light;
+}
+#ws-desktop-widgets .desktop-widget button:disabled {
+  background: transparent;
+  border-color: alpha(@ws_tile_muted, 0.15);
+  color: @ws_tile_muted;
 }
 #ws-desktop-widgets .desktop-widget entry {
-  background: transparent;
-  color: @ws_ink;
-  caret-color: @ws_accent_text;
-  border: 1px solid transparent;
-  border-bottom-color: alpha(@ws_accent, 0.4);
-  border-radius: 0;
-  padding: 0.5em 0.25em;
+  background: alpha(@ws_tile_light, 0.06);
+  color: inherit;
+  caret-color: @ws_tile_red;
+  border: 1px solid alpha(@ws_tile_light, 0.15);
+  border-radius: 999px;
+  padding: 0.6em 0.9em;
   box-shadow: none;
 }
 #ws-desktop-widgets .desktop-widget entry:focus {
-  border-bottom-color: @ws_accent;
+  border-color: @ws_tile_red;
 }
 #ws-desktop-widgets .desktop-widget entry image {
-  color: @ws_accent_text;
+  color: inherit;
 }
 
 #ws-desktop-widgets .launcher-card button.launcher-app {
   min-height: 6em;
   min-width: 7em;
   padding: 0.55em 0.8em;
+  border-radius: 1.2em;
   border-color: transparent;
-}
-#ws-desktop-widgets .launcher-card button.launcher-app:hover,
-#ws-desktop-widgets .launcher-card button.launcher-app:focus {
-  border-color: alpha(@ws_accent, 0.4);
 }
 #ws-desktop-widgets .launcher-card .launcher-empty {
   min-height: 7.1em;
   min-width: 8.6em;
 }
 #ws-desktop-widgets .launcher-card button.launcher-app label {
-  font-weight: 500;
-}
-#ws-desktop-widgets .file-search-path {
-  color: @ws_muted;
-  font-size: 0.8em;
+  font-weight: 400;
+  font-size: 0.9em;
 }
 #ws-desktop-widgets .device-card scale {
   min-width: 14em;
 }
 #ws-desktop-widgets .device-card scale trough {
-  min-height: 0.4em;
-  background-color: alpha(@ws_ink, 0.12);
-  background-image: none;
+  min-height: 0.5em;
+  background: alpha(@ws_tile_light, 0.16);
   border: none;
-  border-radius: 1em;
+  border-radius: 999px;
 }
 #ws-desktop-widgets .device-card scale highlight {
-  background-color: @ws_accent;
-  background-image: none;
+  background: @ws_tile_red;
   border: none;
-  border-radius: 1em;
+  border-radius: 999px;
 }
 #ws-desktop-widgets .device-card scale slider {
-  background-color: @ws_accent_text;
-  background-image: none;
-  border: 1px solid alpha(@ws_ink, 0.3);
-  box-shadow: 0 1px 3px alpha(@ws_shadow, 0.25);
-  min-width: 1em;
-  min-height: 1em;
-  border-radius: 1em;
+  background: @ws_tile_light;
+  border: 2px solid @ws_tile_dark;
+  min-width: 1.15em;
+  min-height: 1.15em;
+  border-radius: 999px;
+  box-shadow: none;
 }
 
+/* Artwork remains rendered by the image component; CSS does not crop its pixels. */
 #ws-desktop-widgets .media-card {
   min-width: 19em;
 }
 #ws-desktop-widgets .media-title {
-  font-size: 1.35em;
-  font-weight: 600;
-  color: mix(@ws_ink, @ws_accent_text, 0.25);
+  font-size: 1.15em;
+  font-weight: 500;
+  color: inherit;
 }
-#ws-desktop-widgets .media-detail {
-  color: @ws_muted;
-  font-size: 0.85em;
-}
-
-/* Artwork and compact, accessible transport controls. */
 #ws-desktop-widgets .widget-image {
   min-width: 10em;
   min-height: 10em;
@@ -279,13 +284,65 @@ window#ws-desktop-widgets decoration {
   min-height: 18em;
 }
 #ws-desktop-widgets .media-card button.media-control {
-  font-size: 1.3em;
-  padding: 0.3em 0.65em;
+  font-size: 1.2em;
+  padding: 0.55em;
   min-width: 1.5em;
+  min-height: 1.5em;
+  border-color: transparent;
 }
-
-/* Monochrome SVG icons inherit colour and scale from their widget/button. */
+#ws-desktop-widgets .media-card button.media-control:hover {
+  background: @ws_tile_red;
+  color: @ws_tile_light;
+}
 #ws-desktop-widgets .widget-icon {
   min-width: 1.1em;
   min-height: 1.1em;
+}
+
+/* Variant details remain readable when a custom widget uses a light/red surface. */
+#ws-desktop-widgets .desktop-widget.light .media-detail,
+#ws-desktop-widgets .desktop-widget.light .file-search-path,
+#ws-desktop-widgets .desktop-widget.light .logtime-period,
+#ws-desktop-widgets .desktop-widget.light .logtime-status {
+  color: @ws_tile_light_muted;
+}
+#ws-desktop-widgets .desktop-widget.light button,
+#ws-desktop-widgets .desktop-widget.light entry {
+  background: alpha(@ws_tile_dark, 0.04);
+  border-color: alpha(@ws_tile_dark, 0.14);
+}
+#ws-desktop-widgets .desktop-widget.light button:hover {
+  background: alpha(@ws_tile_dark, 0.09);
+}
+#ws-desktop-widgets .desktop-widget.light button:active {
+  background: @ws_tile_red;
+  color: @ws_tile_light;
+}
+#ws-desktop-widgets .desktop-widget.light button:focus,
+#ws-desktop-widgets .desktop-widget.light entry:focus {
+  border-color: @ws_tile_red;
+}
+#ws-desktop-widgets .desktop-widget.light button:disabled {
+  background: transparent;
+  color: @ws_tile_light_muted;
+}
+#ws-desktop-widgets .desktop-widget.light progressbar trough,
+#ws-desktop-widgets .desktop-widget.light scale trough {
+  background: alpha(@ws_tile_dark, 0.12);
+}
+#ws-desktop-widgets .desktop-widget.red .progress-ring,
+#ws-desktop-widgets .desktop-widget.red .media-detail,
+#ws-desktop-widgets .desktop-widget.red .file-search-path,
+#ws-desktop-widgets .desktop-widget.red .logtime-period,
+#ws-desktop-widgets .desktop-widget.red .logtime-status {
+  color: @ws_tile_light;
+}
+#ws-desktop-widgets .desktop-widget.red progressbar progress,
+#ws-desktop-widgets .desktop-widget.red scale highlight {
+  background: @ws_tile_light;
+}
+#ws-desktop-widgets .desktop-widget.red button:hover,
+#ws-desktop-widgets .desktop-widget.red button:active {
+  background: @ws_tile_red_hover;
+  border-color: @ws_tile_light;
 }

@@ -370,9 +370,11 @@ The desktop uses one transparent layout with macOS-inspired **Clock, Calendar, S
 stats, Notes and Logtime** cards. Each has its own on/off switch in the graphical control panel
 and TUI, including custom widgets added to the layout.
 
-Widgets are background-free by default, with wallpaper-derived accent colours,
-lightweight typography, subtle text shadows and transparent controls. For an optional
-glass card, add `"class_name": "glass"` to its entry in `layout.json`. Toggle
+Widgets use flat charcoal and off-white tiles, red accents, rounded controls and
+oversized readings inspired by the supplied modular-widget reference. Calendar and
+Notes use light tiles by default. Set `class_name` to `light`, `red`, `transparent`,
+or `glass` in a layout entry to choose a different surface. Dotted numeric typography
+uses the optional Doto font, falling back to monospace when it is unavailable. Toggle
 **Frosted widget glass** in the GUI/TUI to control its blur,
 or use `trpstrata config set widget_blur false`. Adjust strength with
 `trpstrata config set widget_blur_radius 24` (0–64). The Gaussian blur is sampled from the wallpaper;
