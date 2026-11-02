@@ -30,6 +30,8 @@ Copy a built-in into your personal widget directory:
 
 ```sh
 trpstrata widget copy Clock my_clock
+trpstrata widget add my_clock
+trpstrata layout edit
 ```
 
 This creates:
@@ -40,10 +42,27 @@ This creates:
 └── controller.py   state, lifecycle and event handlers
 ```
 
-Add the layout entry printed by the command to `layout.json`. Existing instances
-can also use `"component": "my_clock"`. The copied controller is editable Python
+The `add` command creates an enabled layout instance; arrange mode lets you position
+it. Existing instances can also use `"component": "my_clock"`. The copied controller is editable Python
 code which can continue importing shared framework helpers and backend models.
 The command refuses to overwrite an existing widget or same-name flat custom file.
+
+To create a second instance with an explicit ID, or remove one:
+
+```sh
+trpstrata widget add my_clock work-clock
+trpstrata widget remove work-clock
+```
+
+Without an ID, `add` chooses an unused name (`my_clock`, `my_clock-2`, etc.). An
+explicit duplicate ID is rejected. Removal affects only that layout instance; the
+package files and other instances remain. These commands respect the master
+**Show desktop widgets** setting. `trpstrata layout list` shows instance IDs.
+
+Removing an automatically added built-in records its component in the optional
+`removed_defaults` array in `layout.json`, so startup migrations do not recreate it.
+You can still add that component explicitly later. Resetting the layout restores
+the original default cards and clears this record.
 
 Built-in packages belong to the installed application (under `goinfre` when that
 storage is available). Your copies belong to `.config`, survive application updates,

@@ -407,11 +407,14 @@ padding, state bindings, and named event handlers. Start an editable widget pack
 
 ```sh
 trpstrata widget copy Clock my_clock
+trpstrata widget add my_clock
+trpstrata layout edit
 ```
 
 Edit `~/.config/trpstrata/widgets/my_clock/view.json` for presentation and
-`controller.py` for behavior, then reference `my_clock` in `layout.json` using the
-entry printed by the command. View changes reload live without resetting controller
+`controller.py` for behavior. `widget add` creates the layout entry; use
+`trpstrata widget remove my_clock` to remove the instance while keeping its package.
+View changes reload live without resetting controller
 state. See the [widget engine guide](docs/widget-engine.md) for the JSON format and
 handler API. Legacy Python `@component` widgets and standalone JSON views still work.
 User files survive updates; `XDG_CONFIG_HOME` is respected. Edit `app.css` for the GTK 4

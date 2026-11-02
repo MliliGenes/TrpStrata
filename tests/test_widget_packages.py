@@ -81,7 +81,7 @@ class PackageTests(unittest.TestCase):
             self.assertEqual(main(["widget", "copy", "Notes", "my_notes"]), 0)
         folder = self.root / "my_notes"
         self.assertEqual({path.name for path in folder.iterdir()}, {"view.json", "controller.py"})
-        self.assertIn('"component": "my_notes"', output.getvalue())
+        self.assertIn("trpstrata widget add my_notes", output.getvalue())
         loaded = self.loader.load("my_notes")
         self.assertIsNot(loaded.controller, self.loader.load("Notes").controller)
         original = (folder / "view.json").read_text()

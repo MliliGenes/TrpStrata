@@ -49,6 +49,59 @@ class LayoutTests(unittest.TestCase):
         self.assertFalse(layout.load_layout()[-1].enabled)
         self.assertEqual(layout.widget_title(layout.load_layout()[-1]), "Now playing")
 
+    def test_add_allocates_ids_and_preserves_existing_placements(self):
+        before = json.loads(Path(storage.LAYOUT).read_text())["widgets"]
+        self.assertEqual(layout.add_widget("Clock"), "clock-2")
+        self.assertEqual(layout.add_widget("Clock"), "clock-3")
+        self.assertEqual(layout.add_widget("Notes", "work-notes"), "work-notes")
+        document = json.loads(Path(storage.LAYOUT).read_text())
+        self.assertEqual(document["widgets"][:len(before)], before)
+        self.assertEqual(document["widgets"][-1]["component"], "Notes")
+        saved = Path(storage.LAYOUT).read_text()
+        for component, widget_id in (("Clock", "clock"), ("MissingWidget", None), ("../bad", None)):
+            with self.assertRaises((ValueError, OSError)):
+                layout.add_widget(component, widget_id)
+            self.assertEqual(Path(storage.LAYOUT).read_text(), saved)
+
+    def test_remove_preserves_package_other_instances_and_stays_removed_after_startup(self):
+        from trp_strata.widget_packages import copy_builtin
+        folder = copy_builtin("Notes", "my_notes")
+        layout.add_widget("my_notes", "first-note")
+        layout.add_widget("my_notes", "second-note")
+        layout.remove_widget("first-note")
+        self.assertTrue((folder / "view.json").exists())
+        self.assertIn("second-note", {item.id for item in layout.load_layout()})
+        layout.remove_widget("now-playing")
+        layout.ensure_layout()
+        self.assertNotIn("now-playing", {item.id for item in layout.load_layout()})
+        layout.add_widget("NowPlaying", "media")
+        self.assertIn("media", {item.id for item in layout.load_layout()})
+
+    def test_instance_commands_preserve_malformed_layout_and_unknown_removals(self):
+        saved = Path(storage.LAYOUT).read_text()
+        with self.assertRaisesRegex(ValueError, "Unknown widget"):
+            layout.remove_widget("missing")
+        self.assertEqual(Path(storage.LAYOUT).read_text(), saved)
+        Path(storage.LAYOUT).write_text("{")
+        for operation in (lambda: layout.add_widget("Clock"), lambda: layout.remove_widget("clock")):
+            with self.assertRaises(ValueError):
+                operation()
+            self.assertEqual(Path(storage.LAYOUT).read_text(), "{")
+
+    def test_widget_add_remove_cli(self):
+        import io
+        from contextlib import redirect_stdout, redirect_stderr
+        from trp_strata.cli import main
+        with patch("trp_strata.cli.apply_config") as apply, redirect_stdout(io.StringIO()):
+            self.assertEqual(main(["widget", "add", "Clock", "desk-clock"]), 0)
+            self.assertIn("desk-clock", {item.id for item in layout.load_layout()})
+            self.assertEqual(main(["widget", "remove", "desk-clock"]), 0)
+            self.assertNotIn("desk-clock", {item.id for item in layout.load_layout()})
+            self.assertEqual(apply.call_count, 2)
+            with redirect_stderr(io.StringIO()):
+                self.assertEqual(main(["widget", "remove", "missing"]), 1)
+            self.assertEqual(apply.call_count, 2)
+
     def test_grid_footprints_gutters_and_screen_edges(self):
         width = layout.grid_extent(201, 32, 8)
         self.assertEqual(width, 232)

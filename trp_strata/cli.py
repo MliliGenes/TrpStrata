@@ -28,8 +28,8 @@ def parser():
     layout_parser = commands.add_parser("layout", help="Arrange desktop widgets, toggle individual cards or reset their layout")
     layout_parser.add_argument("action", choices=("edit", "done", "reset", "path", "list", "enable", "disable", "toggle"), nargs="?", default="edit")
     layout_parser.add_argument("widget_id", nargs="?")
-    widget = commands.add_parser("widget", help="List, export or copy editable widget packages")
-    widget.add_argument("action", choices=("export", "list", "copy"))
+    widget = commands.add_parser("widget", help="Manage widget packages and desktop instances")
+    widget.add_argument("action", choices=("export", "list", "copy", "add", "remove"))
     widget.add_argument("name", nargs="?")
     widget.add_argument("destination", nargs="?")
     config = commands.add_parser("config", help="Inspect or change preferences").add_subparsers(dest="config_command")
@@ -69,8 +69,21 @@ def main(argv=None):
                 path = copy_builtin(args.name, args.destination)
                 print(f"Created {path}")
                 print("Edit view.json for presentation and controller.py for logic.")
-                print("Add this entry to layout.json widgets:")
-                print(json.dumps({"id": args.destination, "component": args.destination, "anchor": "top-left"}, indent=2))
+                print(f"Place it on the desktop with: trpstrata widget add {args.destination}")
+            elif args.action == "add":
+                from .layout import add_widget
+                if args.name is None:
+                    raise ValueError("usage: trpstrata widget add COMPONENT [ID]")
+                widget_id = add_widget(args.name, args.destination)
+                apply_config()
+                print(f"Added {widget_id} ({args.name}). Use 'trpstrata layout edit' to position it.")
+            elif args.action == "remove":
+                from .layout import remove_widget
+                if args.name is None or args.destination is not None:
+                    raise ValueError("usage: trpstrata widget remove ID")
+                remove_widget(args.name)
+                apply_config()
+                print(f"Removed {args.name} from the layout; its widget package is preserved.")
             else:
                 if args.name not in VIEWS:
                     raise ValueError("Choose a built-in widget from: " + ", ".join(VIEWS))

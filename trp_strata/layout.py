@@ -17,6 +17,7 @@ ANCHORS = tuple(f"{vertical}-{horizontal}" for vertical in ("top", "center", "bo
                 for horizontal in ("left", "center", "right"))
 IDENTIFIER = re.compile(r"[A-Za-z_][A-Za-z0-9_-]*\Z")
 MODULE_NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_]*\Z")
+AUTO_COMPONENTS = ("NowPlaying", "Launcher", "FileSearch", "QuickLinks", "Volume", "Brightness")
 log = logging.getLogger(__name__)
 
 
@@ -38,8 +39,12 @@ class Placement:
 def parse_layout(document):
     if not isinstance(document, dict) or document.get("version") != 1:
         raise ValueError("layout.json must be an object with version: 1")
-    if set(document) - {"version", "widgets"}:
+    if set(document) - {"version", "widgets", "removed_defaults"}:
         raise ValueError("Unknown desktop layout option")
+    removed = document.get("removed_defaults", [])
+    if (not isinstance(removed, list) or any(not isinstance(name, str) or name not in AUTO_COMPONENTS for name in removed)
+            or len(removed) != len(set(removed))):
+        raise ValueError("removed_defaults must be a list of unique automatically added component names")
     entries = document.get("widgets")
     if not isinstance(entries, list):
         raise ValueError("layout.json needs a widgets list")
@@ -115,8 +120,9 @@ def ensure_layout():
             placements = parse_layout(document)
         except ValueError:
             return  # Leave malformed user edits for the normal reload/error handling.
-        for component in ("NowPlaying", "Launcher", "FileSearch", "QuickLinks", "Volume", "Brightness"):
-            if not placements or any(item.component == component for item in placements):
+        for component in AUTO_COMPONENTS:
+            if (component in document.get("removed_defaults", []) or not placements
+                    or any(item.component == component for item in placements)):
                 continue
             entry = next(item.copy() for item in json.loads(DEFAULT_FILE.read_text())["widgets"]
                          if item["component"] == component)
@@ -139,6 +145,50 @@ def save_placement(widget_id, **changes):
         if entry is None:
             raise ValueError(f"Widget no longer exists in the layout: {widget_id}")
         entry.update(changes)
+        parse_layout(document)
+        storage.write(storage.LAYOUT, json.dumps(document, indent=2) + "\n")
+
+
+def add_widget(component, widget_id=None):
+    """Validate a component and append one instance against the latest saved layout."""
+    if not isinstance(component, str) or not MODULE_NAME.fullmatch(component):
+        raise ValueError("Component must be a widget name, for example my_clock")
+    if widget_id is not None and (not isinstance(widget_id, str) or not IDENTIFIER.fullmatch(widget_id)):
+        raise ValueError("Widget ID must be a simple name, for example work-clock")
+    ComponentLoader().load(component)
+    with storage.locked():
+        path = Path(storage.LAYOUT)
+        document = json.loads(path.read_text() if path.exists() else DEFAULT_FILE.read_text())
+        ids = {item.id for item in parse_layout(document)}
+        if widget_id is None:
+            base = component.lower()
+            widget_id, suffix = base, 2
+            while widget_id in ids:
+                widget_id = f"{base}-{suffix}"
+                suffix += 1
+        elif widget_id in ids:
+            raise ValueError(f"Widget ID already exists: {widget_id}")
+        entry = {"id": widget_id, "component": component, "anchor": "top-left", "enabled": True}
+        document["widgets"].append(entry)
+        parse_layout(document)
+        storage.write(storage.LAYOUT, json.dumps(document, indent=2) + "\n")
+    return widget_id
+
+
+def remove_widget(widget_id):
+    """Remove only the layout instance; leave its source package and other instances intact."""
+    with storage.locked():
+        document = json.loads(Path(storage.LAYOUT).read_text())
+        parse_layout(document)
+        entry = next((item for item in document["widgets"] if item["id"] == widget_id), None)
+        if entry is None:
+            raise ValueError(f"Unknown widget: {widget_id}")
+        document["widgets"].remove(entry)
+        # Startup migrations must not recreate a deliberately removed built-in card.
+        if entry["component"] in AUTO_COMPONENTS:
+            removed = document.setdefault("removed_defaults", [])
+            if entry["component"] not in removed:
+                removed.append(entry["component"])
         parse_layout(document)
         storage.write(storage.LAYOUT, json.dumps(document, indent=2) + "\n")
 

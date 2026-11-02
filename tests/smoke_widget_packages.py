@@ -13,7 +13,7 @@ def main():
     with tempfile.TemporaryDirectory() as directory:
         os.environ["XDG_CONFIG_HOME"] = directory
         os.environ["XDG_CACHE_HOME"] = directory
-        from trp_strata import storage, styles
+        from trp_strata import storage, styles, layout
         from trp_strata.widget_runtime import DesktopWidgets
         from gi.repository import Gdk, Gtk, GLib
         if not Gtk.init_check()[0]:
@@ -78,6 +78,15 @@ def main():
             override.rename(Path(directory) / "removed-clock")
             wait_for(lambda: host.frames["clock"].renderer.find("time") is not None)
             assert override not in host.module_monitor.monitors
+            layout.add_widget("counter", "third")
+            host.reload()
+            wait_for(lambda: "third" in host.engine.instances)
+            third = host.engine.instances["third"]
+            layout.remove_widget("third")
+            host.reload()
+            assert "third" not in host.frames and "third" not in host.engine.instances
+            assert not third.alive
+            assert (folder / "controller.py").exists()
         finally:
             host.close()
         assert not host.module_monitor.monitors
