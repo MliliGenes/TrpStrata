@@ -370,10 +370,11 @@ The desktop uses one transparent layout with macOS-inspired **Clock, Calendar, S
 stats, Notes and Logtime** cards. Each has its own on/off switch in the graphical control panel
 and TUI, including custom widgets added to the layout.
 
-Widgets use flat charcoal and off-white tiles, red accents, rounded controls and
-oversized readings inspired by the supplied modular-widget reference. Calendar and
-Notes use light tiles by default. Set `class_name` to `light`, `red`, `transparent`,
-or `glass` in a layout entry to choose a different surface. Dotted numeric typography
+Widgets use translucent theme-coloured tiles, rounded controls and oversized
+readings inspired by the supplied modular-widget reference. Colours follow the
+wallpaper palette and light/dark mode; Calendar and Notes use an alternate theme
+surface. Set `class_name` to `light`, `red`, `transparent`, or `glass` in a layout
+entry to choose a different surface (`red` now uses your theme accent). Dotted numeric typography
 uses the optional Doto font, falling back to monospace when it is unavailable. Toggle
 **Frosted widget glass** in the GUI/TUI to control its blur,
 or use `trpstrata config set widget_blur false`. Adjust strength with

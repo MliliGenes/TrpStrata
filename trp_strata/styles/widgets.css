@@ -1,12 +1,13 @@
-/* Modular monochrome tiles inspired by the supplied reference.
+/* Modular tiles inspired by the reference, coloured by the wallpaper theme.
    Optional layout class_name values: light, red, transparent, glass.
+   The legacy "red" variant now follows the theme accent, rather than fixed red.
    Doto supplies dotted numerals when installed; monospace is the fallback. */
-@define-color ws_tile_dark #171c19;
-@define-color ws_tile_light #f7f7f5;
-@define-color ws_tile_red #df1521;
-@define-color ws_tile_red_hover #f02935;
-@define-color ws_tile_muted #a6ada8;
-@define-color ws_tile_light_muted #626b65;
+@define-color ws_tile_dark @ws_paper;
+@define-color ws_tile_light @ws_ink;
+@define-color ws_tile_red @ws_accent;
+@define-color ws_tile_red_hover mix(@ws_accent, @ws_accent_text, 0.2);
+@define-color ws_tile_muted @ws_muted;
+@define-color ws_tile_light_muted @ws_muted;
 
 window#ws-desktop-widgets,
 window#ws-desktop-widgets decoration,
@@ -17,7 +18,7 @@ window#ws-desktop-widgets decoration,
 }
 
 #ws-desktop-widgets .desktop-widget {
-  background: @ws_tile_dark;
+  background: alpha(@ws_tile_dark, 0.72);
   color: @ws_tile_light;
   border: 1px solid transparent;
   border-radius: 1.5em;
@@ -30,18 +31,18 @@ window#ws-desktop-widgets decoration,
   text-shadow: none;
 }
 
-/* Light tiles for the default calendar/notes; custom instances can use "light". */
+/* Alternate theme surfaces for calendar/notes; "light" follows light/dark mode. */
 #ws-desktop-widgets #widget-calendar,
 #ws-desktop-widgets #widget-notes,
 #ws-desktop-widgets .desktop-widget.light {
-  background: @ws_tile_light;
-  color: @ws_tile_dark;
+  background: alpha(@ws_sheet, 0.78);
+  color: @ws_ink;
 }
 #ws-desktop-widgets .desktop-widget.red,
 #ws-desktop-widgets #widget-calendar.red,
 #ws-desktop-widgets #widget-notes.red {
-  background: @ws_tile_red;
-  color: @ws_tile_light;
+  background: alpha(@ws_tile_red, 0.88);
+  color: @ws_on_accent;
 }
 #ws-desktop-widgets .desktop-widget.transparent,
 #ws-desktop-widgets #widget-calendar.transparent,
@@ -122,7 +123,7 @@ window#ws-desktop-widgets decoration,
 }
 #ws-desktop-widgets .calendar-cell.today {
   background: @ws_tile_red;
-  color: @ws_tile_light;
+  color: @ws_on_accent;
   border-radius: 999px;
   font-weight: 600;
 }
@@ -196,8 +197,8 @@ window#ws-desktop-widgets decoration,
   text-shadow: none;
 }
 #ws-desktop-widgets .desktop-widget button:hover {
-  background: alpha(@ws_tile_light, 0.16);
-  border-color: alpha(@ws_tile_light, 0.3);
+  background: alpha(@ws_accent, 0.16);
+  border-color: alpha(@ws_accent, 0.4);
 }
 #ws-desktop-widgets .desktop-widget button:focus {
   border-color: @ws_tile_red;
@@ -205,7 +206,7 @@ window#ws-desktop-widgets decoration,
 #ws-desktop-widgets .desktop-widget button:active {
   background: @ws_tile_red;
   border-color: @ws_tile_red;
-  color: @ws_tile_light;
+  color: @ws_on_accent;
 }
 #ws-desktop-widgets .desktop-widget button:disabled {
   background: transparent;
@@ -292,7 +293,7 @@ window#ws-desktop-widgets decoration,
 }
 #ws-desktop-widgets .media-card button.media-control:hover {
   background: @ws_tile_red;
-  color: @ws_tile_light;
+  color: @ws_on_accent;
 }
 #ws-desktop-widgets .widget-icon {
   min-width: 1.1em;
@@ -308,15 +309,15 @@ window#ws-desktop-widgets decoration,
 }
 #ws-desktop-widgets .desktop-widget.light button,
 #ws-desktop-widgets .desktop-widget.light entry {
-  background: alpha(@ws_tile_dark, 0.04);
-  border-color: alpha(@ws_tile_dark, 0.14);
+  background: alpha(@ws_ink, 0.06);
+  border-color: alpha(@ws_ink, 0.14);
 }
 #ws-desktop-widgets .desktop-widget.light button:hover {
-  background: alpha(@ws_tile_dark, 0.09);
+  background: alpha(@ws_accent, 0.16);
 }
 #ws-desktop-widgets .desktop-widget.light button:active {
   background: @ws_tile_red;
-  color: @ws_tile_light;
+  color: @ws_on_accent;
 }
 #ws-desktop-widgets .desktop-widget.light button:focus,
 #ws-desktop-widgets .desktop-widget.light entry:focus {
@@ -328,21 +329,22 @@ window#ws-desktop-widgets decoration,
 }
 #ws-desktop-widgets .desktop-widget.light progressbar trough,
 #ws-desktop-widgets .desktop-widget.light scale trough {
-  background: alpha(@ws_tile_dark, 0.12);
+  background: alpha(@ws_ink, 0.12);
 }
 #ws-desktop-widgets .desktop-widget.red .progress-ring,
 #ws-desktop-widgets .desktop-widget.red .media-detail,
 #ws-desktop-widgets .desktop-widget.red .file-search-path,
 #ws-desktop-widgets .desktop-widget.red .logtime-period,
 #ws-desktop-widgets .desktop-widget.red .logtime-status {
-  color: @ws_tile_light;
+  color: @ws_on_accent;
 }
 #ws-desktop-widgets .desktop-widget.red progressbar progress,
 #ws-desktop-widgets .desktop-widget.red scale highlight {
-  background: @ws_tile_light;
+  background: @ws_on_accent;
 }
 #ws-desktop-widgets .desktop-widget.red button:hover,
 #ws-desktop-widgets .desktop-widget.red button:active {
   background: @ws_tile_red_hover;
-  border-color: @ws_tile_light;
+  border-color: @ws_on_accent;
+  color: @ws_on_accent;
 }
