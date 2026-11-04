@@ -1,11 +1,11 @@
-"""The desktop helper: draws the wallpaper behind every window, and changes it on schedule.
+"""The desktop helper: runs rotation/widgets and optionally plays video wallpapers.
 
-GNOME's own desktop picture can be locked by the administrator (it is at 42), so the helper
-shows the wallpaper in a desktop-level window of its own:
-- pictures are decoded once at screen size and handed to the X server as the window's
-  background, so the server repaints it by itself and this process keeps no image in memory;
-- videos play through VLC inside the same window: silent, looping, cropped to fill the screen,
-  decoded on the GPU where possible, and paused whenever nobody can see the desktop.
+Still wallpapers are written to GNOME's native settings through the personal dconf profile.
+GNOME's own desktop picture can be locked by the administrator (it is at 42), so videos
+keep a desktop-level window of their own while playing:
+    - videos play through VLC inside the same window: silent, looping, cropped to fill the screen,
+      decoded on the GPU where possible, and paused whenever nobody can see the desktop.
+    - a video's cached poster frame remains the native GNOME wallpaper underneath the player.
 
 It wakes only when state.json changes, and once a minute for rotation and light/dark.
 """
@@ -64,6 +64,7 @@ XChangeProperty = _sig("XChangeProperty", ctypes.c_int, P, XID, XID, XID, ctypes
 XStoreName = _sig("XStoreName", ctypes.c_int, P, XID, ctypes.c_char_p)
 XMapWindow = _sig("XMapWindow", ctypes.c_int, P, XID)
 XUnmapWindow = _sig("XUnmapWindow", ctypes.c_int, P, XID)
+XDestroyWindow = _sig("XDestroyWindow", ctypes.c_int, P, XID)
 XLowerWindow = _sig("XLowerWindow", ctypes.c_int, P, XID)
 XMoveResizeWindow = _sig("XMoveResizeWindow", ctypes.c_int, P, XID, ctypes.c_int, ctypes.c_int,
                          ctypes.c_uint, ctypes.c_uint)
@@ -318,7 +319,8 @@ class Desktop:
         config, state = core.load_config(), core.load_state()
         hours = config["rotate_hours"]
         # rotation counts from the last change; nothing chosen yet means nothing to rotate from
-        if hours and state.get("changed") and time.time() - state["changed"] >= hours * 3600:
+        if (hours and state.get("changed") and time.time() - state["changed"] >= hours * 3600
+                and not self.session_locked()):
             self.run("next")
         elif state.get("palette") and state.get("mode") != core.effective_mode(config):
             self.run("apply")
@@ -364,10 +366,7 @@ class Desktop:
 
         if target is None:
             self.stop_video()
-            if self.win is not None and self.mapped:
-                XUnmapWindow(self.dpy, self.win)
-                self.mapped = False
-                XFlush(self.dpy)
+            self.destroy_wallpaper_window()
             return False
 
         if core.is_video(target):
@@ -379,8 +378,21 @@ class Desktop:
             self.start_video(target, width, height)
         else:
             self.stop_video()
-            self.show_picture(target, width, height)
+            # Still images are now drawn by GNOME from picture-uri.  Do not
+            # create an X11 wallpaper window for them.
+            self.destroy_wallpaper_window()
         return False
+
+    def destroy_wallpaper_window(self):
+        """Remove the optional X11 wallpaper window used only for videos."""
+        if self.win is None:
+            return
+        if self.mapped:
+            XUnmapWindow(self.dpy, self.win)
+        XDestroyWindow(self.dpy, self.win)
+        self.win = None
+        self.mapped = False
+        XFlush(self.dpy)
 
     def map_lowered(self):
         if not self.mapped:
@@ -413,6 +425,7 @@ class Desktop:
         return True
 
     def show_picture(self, path, width, height):
+        """Show a video's cached poster while VLC attaches to the X11 window."""
         try:
             surface = render_cover(path, width, height)
         except GLib.Error:
@@ -506,6 +519,7 @@ class Desktop:
 
     def close(self):
         self.stop_video()
+        self.destroy_wallpaper_window()
         self.uninhibit()
         self.widgets.close()
 

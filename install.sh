@@ -49,9 +49,9 @@ if [ -z "$PYTHON" ]; then
 	exit 1
 fi
 if [ "${XDG_SESSION_TYPE:-x11}" != x11 ]; then
-	echo "Note: you're on $XDG_SESSION_TYPE; the wallpaper is only drawn in X11 (Xorg) sessions." >&2
+	echo "Note: you're on $XDG_SESSION_TYPE; still wallpapers are native, but widgets and video playback need X11." >&2
 fi
-command -v cvlc >/dev/null || echo "Note: VLC isn't installed, so video wallpapers won't play (pictures work)." >&2
+command -v cvlc >/dev/null || echo "Note: VLC isn't installed, so videos will use their static poster frame (pictures work)." >&2
 
 # an older home-made setup also draws the desktop and writes gtk.css; two would fight
 if [ -f "$HOME/.config/autostart/studio-wallpaper.desktop" ]; then

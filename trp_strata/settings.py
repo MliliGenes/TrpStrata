@@ -27,7 +27,7 @@ DEFAULT_CONFIG = {
     "layout_grid_gap": 8,
     "widget_blur": True,
     "widget_blur_radius": 24,
-    "widget_font": "dotted",
+    "widget_font": "sans",
     "logtime_username": "",
     "logtime_goal": 180,
     "awake_method": "mouse",  # GNOME inhibitor plus a pointer round trip; "inhibit" disables movement
@@ -55,7 +55,7 @@ DESCRIPTIONS = {
     "layout_grid_gap": "Space between grid cells in pixels (0–64)",
     "widget_blur": "Frosted wallpaper backdrop behind widget cards",
     "widget_blur_radius": "Gaussian blur strength in wallpaper pixels (0–64; 0 disables blur)",
-    "widget_font": "Widget typography: dotted (Doto), sans, mono or serif",
+    "widget_font": "Widget typography: clean sans (default), dotted Doto, mono or serif",
     "logtime_username": "1337 login for the Logtime widget; empty pauses requests",
     "logtime_goal": "Target hours per Logtime period (default 180; configurable)",
     "awake_method": "mouse (inhibitor + pointer round trip) or inhibit (GNOME only)",

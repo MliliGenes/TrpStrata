@@ -680,6 +680,18 @@ class Window(Adw.ApplicationWindow):
             self.show_current()
             if error:
                 self.toasts.add_toast(Adw.Toast(title=error))
+            elif isinstance(result, dict) and result.get("native_wallpaper_pending_login"):
+                dialog = Gtk.MessageDialog(
+                    transient_for=self, modal=True,
+                    message_type=Gtk.MessageType.INFO, buttons=Gtk.ButtonsType.OK,
+                    text="Wallpaper saved — log out and back in once",
+                    secondary_text=("GNOME Shell needs to load your personal wallpaper profile. "
+                                    "Save your work, then log out and log back in normally. "
+                                    "After that, selecting pictures in this app will change "
+                                    "the desktop immediately."),
+                )
+                dialog.connect("response", lambda window, _response: window.destroy())
+                dialog.present()
             elif result is None and nothing_message:
                 self.toasts.add_toast(Adw.Toast(title=nothing_message))
             return False
@@ -765,7 +777,8 @@ class App(Adw.Application):
         Adw.Application.do_startup(self)
         styles.ensure_user_styles()
         provider = Gtk.CssProvider()
-        provider.load_from_path(str(styles.DIRECTORY / "app.css"))
+        provider.load_from_data((styles.DIRECTORY / "colors.css").read_text().encode()
+                                + (styles.DIRECTORY / "app.css").read_bytes())
         Gtk.StyleContext.add_provider_for_display(Gdk.Display.get_default(), provider,
                                                   Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
         # GTK reads gtk.css only at start-up; reload it (and the colours it imports) whenever they change,

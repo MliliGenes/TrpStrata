@@ -88,7 +88,7 @@ def link_themes(paths):
 
 def install(source, paths, interpreter):
     source, target = Path(source), Path(paths.app)
-    for name in ("trp_strata", "wallpapers", "trpstrata"):
+    for name in ("trp_strata", "wallpapers", "trpstrata", "uninstall.sh"):
         if not (source / name).exists():
             raise ValueError(f"Missing installation source: {source / name}")
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -100,6 +100,7 @@ def install(source, paths, interpreter):
                         ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
         shutil.copytree(source / "wallpapers", staging / "wallpapers")
         shutil.copy2(source / "trpstrata", staging / "trpstrata")
+        shutil.copy2(source / "uninstall.sh", staging / "uninstall.sh")
         launcher = staging / "trpstrata"
         lines = launcher.read_text().splitlines(keepends=True)
         launcher.write_text(f"#!{interpreter}\n" + "".join(lines[1:]))

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "view": {
-    "type": "Column", "spacing": 10, "class_name": "desktop-clock",
+    "type": "Column", "spacing": 8, "class_name": "desktop-clock",
     "visible": {"$bind": "state.visible"},
     "children": [
       {"type": "Text", "text": {"$bind": "state.time"}, "class_name": "clock-time", "key": "time"},

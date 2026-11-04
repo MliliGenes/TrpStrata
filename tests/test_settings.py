@@ -70,6 +70,13 @@ class SettingsTests(unittest.TestCase):
 
 
 class CommandTests(unittest.TestCase):
+    def test_uninstall_executes_bundled_script(self):
+        from trp_strata import cli
+        with patch("trp_strata.cli.os.execv", side_effect=SystemExit(0)) as execute:
+            with self.assertRaises(SystemExit):
+                cli.main(["uninstall"])
+        execute.assert_called_once_with("/bin/bash", ["bash", str(ROOT / "uninstall.sh")])
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)

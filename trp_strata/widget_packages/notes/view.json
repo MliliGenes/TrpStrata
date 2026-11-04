@@ -1,10 +1,10 @@
 {
   "version": 1,
   "view": {
-    "type": "Column", "spacing": 12, "class_name": "notes-card",
+    "type": "Column", "spacing": 10, "class_name": "notes-card",
     "children": [
-      {"type": "Text", "text": {"$bind": "state.title"}, "class_name": "widget-label", "align": "start"},
-      {"type": "Text", "text": {"$bind": "state.text"}, "class_name": "notes-text", "align": "start", "wrap": true, "max_width_chars": 25}
+      {"type": "Text", "text": {"$bind": "state.title"}, "class_name": "widget-label", "align": "start", "key": "title"},
+      {"type": "Text", "text": {"$bind": "state.text"}, "class_name": "notes-text", "align": "start", "wrap": true, "max_width_chars": 25, "key": "body"}
     ]
   }
 }

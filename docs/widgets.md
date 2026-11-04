@@ -9,7 +9,9 @@ custom Python components and GTK CSS remain supported.
 
 The desktop is one transparent GTK layout. Its cards share a stylesheet, but each has
 its own component, position, width, height, text scale, props and on/off switch. The built-in cards are
-**Clock**, **Calendar**, **System stats** (actual CPU, memory and disk usage), **Notes**, **Logtime**, **Cleaner**, and **Now playing**.
+**Clock**, **Calendar**, **System stats** (actual CPU, memory and disk usage), **Notes**,
+**Logtime**, **Cleaner**, **Now playing**, **Launcher**, **File search**, **Quick links**,
+**Volume** and **Brightness**.
 
 ## Arrange cards on the desktop
 
@@ -128,7 +130,8 @@ For example, this layout contains two independently controlled cards:
 ```
 
 Each `id` must be unique. The available built-in component names are `Clock`, `Calendar`,
-`System`, `Notes`, `Logtime`, `Cleaner` and `NowPlaying`. Custom component names refer to Python filenames in your `widgets/`
+`System`, `Notes`, `Logtime`, `Cleaner`, `NowPlaying`, `Launcher`, `FileSearch`,
+`QuickLinks`, `Volume` and `Brightness`. Custom component names refer to Python filenames in your `widgets/`
 folder, without `.py`.
 
 Anchors combine `top`, `center` or `bottom` with `left`, `center` or `right`, for example
@@ -238,9 +241,11 @@ for that one instance. Give multiple instances unique IDs. To change its look, e
 
 ## CSS styling and scaling
 
-The default style is wallpaper-tinted glass: translucent surfaces, accent gradients,
-highlighted borders and drop shadows. Text remains fully opaque. A softened, cached
-copy of the wallpaper is drawn behind each card with the same rounded shape as its CSS.
+The default style is shadcn-inspired glass: restrained translucent surfaces, neutral
+hairline borders, compact rounded controls, quiet shadows and clear focus rings.
+Accent colour is reserved for primary actions, selected dates and progress. Text remains fully opaque.
+A softened, cached copy of the wallpaper is drawn behind each card with the same
+rounded shape as its CSS.
 The sampled area follows the card while dragging, so the frosted backdrop stays aligned
 with the wallpaper.
 
@@ -287,10 +292,10 @@ Each card has a stable CSS ID, `#widget-<id>`, and the shared `.desktop-widget` 
 ```css
 /* All cards */
 #ws-desktop-widgets .desktop-widget {
-  border-radius: 1.5em;
-  background-color: alpha(@ws_sheet, 0.50);
+  border-radius: 0.85em;
+  background-color: alpha(@ws_sheet, 0.80);
   color: @ws_ink;
-  padding: 1.25em;
+  padding: 1.2em;
 }
 
 /* Only the clock instance whose id is "clock" */
@@ -306,8 +311,15 @@ Each card has a stable CSS ID, `#widget-<id>`, and the shared `.desktop-widget` 
 }
 ```
 
+Buttons use shadcn-inspired variants through `class_name`: `button-primary` for the
+strong action, `button-outline` for secondary actions, `button-secondary` for grouped
+items, and `button-ghost` for icon-only controls. They compose with widget-specific
+classes such as `media-control` or `dock-page`.
+
 `@ws_paper`, `@ws_sheet`, `@ws_ink`, `@ws_muted`, `@ws_accent`, `@ws_accent_text`, `@ws_shadow` and `@ws_on_accent` follow the
-wallpaper palette. Do not edit generated `theme.css`. For the control panel, edit `app.css`.
+wallpaper palette. Semantic aliases such as `@color_background`, `@color_surface`, `@color_text`,
+`@color_accent` and the complete ANSI colour set are documented in
+[`docs/colors.md`](colors.md). Do not edit generated `theme.css`. For the control panel, edit `app.css`.
 The TUI can open the layout and styles in `VISUAL`/`EDITOR`, falling back to `nano`.
 
 ## Add your own card

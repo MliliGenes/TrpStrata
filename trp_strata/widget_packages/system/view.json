@@ -1,17 +1,17 @@
 {
   "version": 1,
   "view": {
-    "type": "Column", "spacing": 12, "class_name": "system-card",
+    "type": "Column", "spacing": 14, "class_name": "system-card",
     "children": [
       {"type": "Text", "text": "SYSTEM", "class_name": "widget-label", "align": "start"},
       {"repeat": {"$bind": "state.metrics"}, "key": "id", "template": {
-        "type": "Column", "spacing": 5,
+        "type": "Column", "spacing": 6,
         "children": [
-          {"type": "Row", "children": [
-            {"type": "Text", "text": {"$bind": "item.id"}, "align": "start", "expand": true},
-            {"type": "Text", "text": {"$bind": "item.text"}, "class_name": "metric-value"}
+          {"type": "Row", "spacing": 8, "children": [
+            {"type": "Text", "text": {"$bind": "item.id"}, "class_name": "metric-label", "align": "start", "expand": true},
+            {"type": "Text", "text": {"$bind": "item.text"}, "class_name": "metric-value", "key": "value"}
           ]},
-          {"type": "Progress", "value": {"$bind": "item.value"}, "visible": {"$bind": "item.available"}}
+          {"type": "Progress", "value": {"$bind": "item.value"}, "class_name": "metric-progress", "visible": {"$bind": "item.available"}}
         ]
       }}
     ]

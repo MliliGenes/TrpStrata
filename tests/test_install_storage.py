@@ -27,6 +27,7 @@ class StorageMigrationTests(unittest.TestCase):
         (self.source / "wallpapers" / "example.jpg").write_bytes(b"wallpaper fixture")
         (self.source / "trpstrata").write_text("#!/usr/bin/env python3\nprint('fixture')\n")
         (self.source / "trpstrata").chmod(0o755)
+        (self.source / "uninstall.sh").write_text("#!/bin/bash\n# uninstall fixture\n")
 
     def test_existing_home_data_moves_to_goinfre_and_links_keep_old_paths_working(self):
         old_app = Path(self.paths.install_link)
@@ -50,6 +51,7 @@ class StorageMigrationTests(unittest.TestCase):
         self.assertEqual((old_app / "wallpapers/example.jpg").read_bytes(), b"wallpaper fixture")
         self.assertEqual(config.read_text(), '{"original":"settings"}')
         self.assertEqual((Path(self.paths.app) / "trpstrata").read_text().splitlines()[0], f"#!{sys.executable}")
+        self.assertEqual((old_app / "uninstall.sh").read_text(), (self.source / "uninstall.sh").read_text())
 
         (self.source / "trp_strata/__init__.py").write_text("# version 2\n")
         install_storage.install(self.source, self.paths, sys.executable)

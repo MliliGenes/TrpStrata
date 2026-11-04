@@ -28,7 +28,7 @@ LABELS = {
     "logtime_username": "Logtime username", "logtime_goal": "Logtime goal (hours)",
 }
 CHOICES = {"mode": ("light", "dark", "auto"), "awake_method": ("mouse", "inhibit"),
-           "widget_font": ("dotted", "sans", "mono", "serif")}
+           "widget_font": ("sans", "dotted", "mono", "serif")}
 
 
 @dataclass

@@ -1,0 +1,73 @@
+/*
+ * trpStrata colour tokens
+ * ------------------------
+ *
+ * The values below are aliases for the current wallpaper palette.  GTK uses
+ * @define-color rather than browser-style --custom-properties, so use them as
+ * @color_background (or the shorter @ws_paper) in GTK CSS.
+ *
+ * The .trpstrata-swatch-* classes are optional helpers.  Add one to a GTK
+ * widget when you want a colour swatch in a custom component.
+ */
+
+/* Semantic colours --------------------------------------------------------- */
+@define-color color_background @ws_paper;
+@define-color color_background_alt @ws_paper2;
+@define-color color_surface @ws_sheet;
+@define-color color_text @ws_ink;
+@define-color color_text_muted @ws_muted;
+@define-color color_accent @ws_accent;
+@define-color color_accent_text @ws_accent_text;
+@define-color color_on_accent @ws_on_accent;
+@define-color color_shadow @ws_shadow;
+
+/* ANSI palette ------------------------------------------------------------- */
+@define-color color_black @ws_ansi_black;
+@define-color color_red @ws_ansi_red;
+@define-color color_green @ws_ansi_green;
+@define-color color_yellow @ws_ansi_yellow;
+@define-color color_blue @ws_ansi_blue;
+@define-color color_magenta @ws_ansi_magenta;
+@define-color color_cyan @ws_ansi_cyan;
+@define-color color_white @ws_ansi_white;
+@define-color color_bright_black @ws_ansi_bright_black;
+@define-color color_bright_red @ws_ansi_bright_red;
+@define-color color_bright_green @ws_ansi_bright_green;
+@define-color color_bright_yellow @ws_ansi_bright_yellow;
+@define-color color_bright_blue @ws_ansi_bright_blue;
+@define-color color_bright_magenta @ws_ansi_bright_magenta;
+@define-color color_bright_cyan @ws_ansi_bright_cyan;
+@define-color color_bright_white @ws_ansi_bright_white;
+
+/* Optional swatch helpers -------------------------------------------------- */
+.trpstrata-swatch {
+  min-width: 1.5em;
+  min-height: 1.5em;
+  border-radius: 0.3em;
+}
+
+.trpstrata-swatch-background { background-color: @color_background; }
+.trpstrata-swatch-background-alt { background-color: @color_background_alt; }
+.trpstrata-swatch-surface { background-color: @color_surface; }
+.trpstrata-swatch-text { background-color: @color_text; }
+.trpstrata-swatch-text-muted { background-color: @color_text_muted; }
+.trpstrata-swatch-accent { background-color: @color_accent; }
+.trpstrata-swatch-accent-text { background-color: @color_accent_text; }
+.trpstrata-swatch-on-accent { background-color: @color_on_accent; }
+.trpstrata-swatch-shadow { background-color: @color_shadow; }
+.trpstrata-swatch-black { background-color: @color_black; }
+.trpstrata-swatch-red { background-color: @color_red; }
+.trpstrata-swatch-green { background-color: @color_green; }
+.trpstrata-swatch-yellow { background-color: @color_yellow; }
+.trpstrata-swatch-blue { background-color: @color_blue; }
+.trpstrata-swatch-magenta { background-color: @color_magenta; }
+.trpstrata-swatch-cyan { background-color: @color_cyan; }
+.trpstrata-swatch-white { background-color: @color_white; }
+.trpstrata-swatch-bright-black { background-color: @color_bright_black; }
+.trpstrata-swatch-bright-red { background-color: @color_bright_red; }
+.trpstrata-swatch-bright-green { background-color: @color_bright_green; }
+.trpstrata-swatch-bright-yellow { background-color: @color_bright_yellow; }
+.trpstrata-swatch-bright-blue { background-color: @color_bright_blue; }
+.trpstrata-swatch-bright-magenta { background-color: @color_bright_magenta; }
+.trpstrata-swatch-bright-cyan { background-color: @color_bright_cyan; }
+.trpstrata-swatch-bright-white { background-color: @color_bright_white; }

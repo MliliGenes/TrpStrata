@@ -19,6 +19,10 @@ import sys
 import tempfile
 import time
 
+from .native_wallpaper import NativeWallpaper, prepare_environment
+
+prepare_environment()
+
 from gi.repository import Gio, GLib
 
 from . import palette, system_theme
@@ -43,6 +47,9 @@ TOUCHED = [
     (system_theme.DOCK_SCHEMA, "transparency-mode"),
     ("org.gnome.desktop.interface", "color-scheme"),
     ("org.gnome.desktop.background", "primary-color"),
+    ("org.gnome.desktop.background", "picture-uri"),
+    ("org.gnome.desktop.background", "picture-uri-dark"),
+    ("org.gnome.desktop.background", "picture-options"),
     ("org.gnome.desktop.screensaver", "picture-uri"),
 ]
 TERMINAL = "/org/gnome/terminal/legacy/profiles:"
@@ -172,13 +179,22 @@ def _cache_name(path, ext):
 
 
 def video_frame(video):
-    """A still from the video (2 s in, or the first frame), cached; None if VLC can't read it."""
+    """A still from the video (2 s in, or the first frame), cached."""
     out = os.path.join(CACHE_DIR, "frames", _cache_name(video, ".jpg"))
     if os.path.exists(out):
         return out
+    os.makedirs(os.path.dirname(out), exist_ok=True)
+    if shutil.which("ffmpeg"):
+        for seek in ("2", "0"):
+            result = subprocess.run(
+                ["ffmpeg", "-hide_banner", "-loglevel", "error", "-ss", seek, "-i", video,
+                 "-frames:v", "1", "-vf", "scale='min(1920,iw)':-2", "-y", out],
+                capture_output=True, text=True, timeout=30, check=False,
+            )
+            if result.returncode == 0 and os.path.isfile(out):
+                return out
     if not shutil.which("cvlc"):
         return None
-    os.makedirs(os.path.dirname(out), exist_ok=True)
     with tempfile.TemporaryDirectory(dir=os.path.dirname(out)) as tmp:
         for start in (["--start-time=2"], []):
             # software decoding: the snapshot filter can't read hardware-decoded frames
@@ -200,18 +216,29 @@ def still_of(path):
 
 
 def set_wallpaper(path):
-    """Show a picture or video on the desktop and recolour everything from it."""
+    """Apply a native still wallpaper, or play a video over its native poster."""
     path = os.path.realpath(path)
     if not os.path.isfile(path) or not is_wallpaper(path):
         raise ValueError(f"not a picture or video: {path}")
     still = still_of(path)
     if still is None:
-        raise ValueError("couldn't read a frame from this video (is VLC installed?)")
+        raise ValueError("couldn't read a frame from this video (install FFmpeg or VLC)")
     pal = palette.from_image(still)
     with locked():
+        _save_originals()
+        # GNOME only accepts image URIs.  Videos therefore use their cached
+        # poster frame natively; desktop.py optionally plays the source video
+        # in the old X11 window while the session is visible.
+        shell_loaded = NativeWallpaper().apply_image(still)
+        if shell_loaded is not True:
+            logging.getLogger(__name__).warning(
+                "Native wallpaper profile was installed but GNOME Shell has not loaded it; "
+                "a normal logout/login may be required once."
+            )
         _save_state({"wallpaper": path, "still": still, "palette": pal,
                      "palette_version": palette.EXTRACTION_VERSION, "changed": time.time()})
     apply_theme()
+    return {"native_wallpaper_pending_login": shell_loaded is not True}
 
 
 def next_wallpaper():
@@ -364,10 +391,28 @@ def _terminal_profile(p):
 
 
 def _lock_screen(still):
-    if _set("org.gnome.desktop.screensaver", "picture-uri", GLib.Variant("s", Gio.File.new_for_path(still).get_uri())):
-        # the 42 school lock screen reads the picture when its helper starts
-        subprocess.run(["systemctl", "--user", "try-restart", "codam-web-greeter.service"],
-                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
+    # Keep a real PNG outside the disposable frame cache. Codam's URI parser
+    # does not decode escaped filenames, so give it this fixed, simple name.
+    import gi
+    gi.require_version("GdkPixbuf", "2.0")
+    from gi.repository import GdkPixbuf
+    destination = os.path.join(CONFIG_DIR, "lock-wallpaper.png")
+    fd, temporary = tempfile.mkstemp(prefix=".lock-wallpaper-", dir=CONFIG_DIR)
+    os.close(fd)
+    try:
+        image = GdkPixbuf.Pixbuf.new_from_file(still)
+        image.savev(temporary, "png", [], [])
+        os.replace(temporary, destination)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
+    settings = _settings("org.gnome.desktop.screensaver")
+    if settings is None or not settings.is_writable("picture-uri"):
+        raise ValueError("The lock-screen picture setting is unavailable or locked.")
+    if not settings.set_string("picture-uri", "file://" + destination):
+        raise ValueError("GNOME could not save the lock-screen picture.")
+    Gio.Settings.sync()
+    NativeWallpaper().refresh_lock_screen()
 
 
 def _refresh_palette(state):

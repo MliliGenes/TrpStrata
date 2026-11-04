@@ -3,8 +3,8 @@ import logging
 from pathlib import Path
 
 PRESETS = {
-    "dotted": ("Dotted · Doto", '"Inter", "DejaVu Sans", sans-serif', '"Doto", "DejaVu Sans Mono", monospace'),
     "sans": ("Clean · Sans", '"Inter", "DejaVu Sans", sans-serif', '"Inter", "DejaVu Sans", sans-serif'),
+    "dotted": ("Dotted · Doto", '"Inter", "DejaVu Sans", sans-serif', '"Doto", "DejaVu Sans Mono", monospace'),
     "mono": ("Technical · Mono", '"DejaVu Sans Mono", monospace', '"DejaVu Sans Mono", monospace'),
     "serif": ("Editorial · Serif", '"DejaVu Serif", serif', '"DejaVu Serif", serif'),
 }

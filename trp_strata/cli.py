@@ -20,6 +20,7 @@ def parser():
         "tui": "Open the interactive terminal control panel",
         "lock": "Show trpStrata's themed lock overlay",
         "paths": "Show installation, cache and configuration locations",
+        "uninstall": "Restore settings and remove the installed app",
     }.items():
         commands.add_parser(name, help=help_text)
     commands.add_parser("set", help="Use an image or video").add_argument("file")
@@ -58,6 +59,12 @@ def main(argv=None):
     args = parser().parse_args(argv)
     command = args.command or "open"
     try:
+        if command == "uninstall":
+            from pathlib import Path
+            script = Path(__file__).resolve().parent.parent / "uninstall.sh"
+            if not script.is_file():
+                raise ValueError("Uninstaller is missing. Update trpStrata and try again.")
+            os.execv("/bin/bash", ["bash", str(script)])
         if command == "widget":
             from .widget_builtin_views import VIEWS, document
             if args.action == "list":

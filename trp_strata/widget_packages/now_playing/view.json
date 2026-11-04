@@ -6,14 +6,14 @@
       {"type": "Text", "text": "NOW PLAYING", "class_name": "widget-label", "key": "label"},
       {"type": "Image", "data": {"$bind": "state.artwork"}, "class_name": "media-artwork", "key": "artwork"},
       {"type": "Text", "text": {"$bind": "state.title"}, "wrap": true, "max_width_chars": 28, "class_name": "media-title", "key": "title"},
-      {"type": "Text", "text": {"$bind": "state.artist"}, "visible": {"$bind": "state.show_artist"}, "wrap": true, "max_width_chars": 28, "key": "artist"},
+      {"type": "Text", "text": {"$bind": "state.artist"}, "visible": {"$bind": "state.show_artist"}, "wrap": true, "max_width_chars": 28, "class_name": "media-artist", "key": "artist"},
       {"type": "Text", "text": {"$bind": "state.album"}, "visible": {"$bind": "state.show_album"}, "wrap": true, "max_width_chars": 28, "class_name": "media-detail", "key": "album"},
-      {"type": "Row", "spacing": 8, "children": [
+      {"type": "Row", "spacing": 8, "class_name": "media-controls", "children": [
         {"repeat": {"$bind": "state.controls"}, "key": "id", "template": {
           "type": "Button", "text": {"$bind": "item.label"},
           "events": {"click": {"handler": "control", "args": {"$bind": "item.id"}}},
           "icon": {"$bind": "item.icon"}, "tooltip": {"$bind": "item.label"},
-          "sensitive": {"$bind": "item.enabled"}, "expand": true, "class_name": "media-control"
+          "sensitive": {"$bind": "item.enabled"}, "expand": true, "class_name": "media-control button-ghost"
         }}
       ]},
       {"type": "Text", "text": {"$bind": "state.status"}, "wrap": true, "max_width_chars": 28, "class_name": "media-detail", "key": "status"}

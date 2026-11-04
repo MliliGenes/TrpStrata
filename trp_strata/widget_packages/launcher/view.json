@@ -3,14 +3,14 @@
   "view": {
     "type": "Column", "spacing": 6, "class_name": "launcher-card launcher-dock",
     "children": [
-      {"type": "Row", "spacing": 8, "children": [
+      {"type": "Row", "spacing": 8, "class_name": "launcher-row", "children": [
         {"repeat": {"$bind": "state.apps"}, "key": "id", "template": {
           "type": "Button", "text": {"$bind": "item.name"}, "events": {"click": {"handler": "launch", "args": {"$bind": "item.id"}}},
-          "system_icon": {"$bind": "item.icon"}, "tooltip": {"$bind": "item.tooltip"}, "icon_position": "top", "show_label": false, "class_name": "launcher-app"
+          "system_icon": {"$bind": "item.icon"}, "tooltip": {"$bind": "item.tooltip"}, "icon_position": "top", "show_label": false, "class_name": "launcher-app button-ghost"
         }},
-        {"type": "Row", "visible": {"$bind": "state.show_pages"}, "spacing": 4, "children": [
-          {"type": "Button", "text": "‹", "tooltip": "Previous applications", "class_name": "dock-page", "events": {"click": {"handler": "move", "args": -1}}, "sensitive": {"$bind": "state.can_previous"}},
-          {"type": "Button", "text": "›", "tooltip": "Next applications", "class_name": "dock-page", "events": {"click": {"handler": "move", "args": 1}}, "sensitive": {"$bind": "state.can_next"}}
+        {"type": "Row", "visible": {"$bind": "state.show_pages"}, "spacing": 4, "class_name": "dock-pages", "children": [
+          {"type": "Button", "text": "‹", "tooltip": "Previous applications", "class_name": "dock-page button-outline", "events": {"click": {"handler": "move", "args": -1}}, "sensitive": {"$bind": "state.can_previous"}},
+          {"type": "Button", "text": "›", "tooltip": "Next applications", "class_name": "dock-page button-outline", "events": {"click": {"handler": "move", "args": 1}}, "sensitive": {"$bind": "state.can_next"}}
         ]},
         {"type": "Search", "text": {"$bind": "state.query"}, "events": {"change": "search"}, "placeholder": "Search apps…", "key": "app-search", "class_name": "dock-search"}
       ]}

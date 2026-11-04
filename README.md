@@ -11,6 +11,19 @@ Pick a wallpaper and your whole desktop takes its colours.
 - **Terminal control:** inspect and change preferences with `trpstrata config`.
 
 Made for the 42 iMacs (Ubuntu 22.04, GNOME, X11), where the normal desktop picture setting is locked.
+
+Still wallpapers are written through the user-owned dconf profile at
+`~/.config/dconf/wallpaper-profile`. On the first setup, GNOME Shell may need one normal
+logout/login to load that profile; trpStrata does not restart Shell or require sudo.
+
+### Uninstall without a source checkout
+
+Close the control panel, then run `trpstrata uninstall`. If it is not on PATH,
+run `~/.local/bin/trpstrata uninstall`. The installer bundles the uninstaller;
+the original download or Git clone is not needed. It restores settings, refreshes
+the lock-screen image, and removes the app, cache, preferences, launchers and
+autostart entry. Shared themes and the personal dconf profile/service overrides
+are retained. If restoration reports an error, removal stops.
 No sudo needed.
 
 ## Install
@@ -94,7 +107,8 @@ sudo apt install python3-gi python3-cairo python3-gi-cairo python3-venv \
 ```
 
 On the school iMacs, these may already be provided; launching the app does not require
-sudo. VLC (`sudo apt install vlc` on your own machine) is optional for video wallpapers.
+sudo. VLC (`sudo apt install vlc` on your own machine) is optional: without it, videos
+still use their cached poster frame but do not animate.
 
 For an isolated Python environment that reuses the system GTK bindings:
 
@@ -366,20 +380,22 @@ the login autostart entry is still installed.
 
 ## Desktop widgets and live CSS
 
-The desktop uses one transparent layout with macOS-inspired **Clock, Calendar, System
-stats, Notes and Logtime** cards. Each has its own on/off switch in the graphical control panel
+The desktop uses one transparent layout with **Clock, Calendar, System stats, Notes,
+Logtime, Cleaner, Now playing, Launcher, File search, Quick links, Volume and
+Brightness** cards. Each has its own on/off switch in the graphical control panel
 and TUI, including custom widgets added to the layout.
 
-Widgets use translucent theme-coloured tiles, rounded controls and oversized
-readings inspired by the supplied modular-widget reference. Colours follow the
-wallpaper palette and light/dark mode; Calendar and Notes use an alternate theme
-surface. Set `class_name` to `light`, `red`, `transparent`, or `glass` in a layout
-entry to choose a different surface (`red` now uses your theme accent).
-Choose **Widgets → Widget font** for Dotted, Sans, Mono or Serif typography, updated
-live. Dotted uses bundled open-source **Doto**, a Nothing-style alternative, with
-readable sans-serif labels. No font installation is needed. The TUI offers the same
-setting, or use `trpstrata config set widget_font mono` from the CLI. Toggle
-**Frosted widget glass** in the GUI/TUI to control its blur,
+Widgets use a shadcn-inspired neutral hierarchy: restrained, theme-coloured surfaces,
+quiet borders, compact controls and clear typography. Colours follow the wallpaper
+palette and light/dark mode; accent colour is reserved for primary actions, focus
+rings, selected dates and progress. Set
+`class_name` to `light`, `red`, `transparent`, or `glass` in a layout entry to choose
+a different surface (`red` now uses your theme accent).
+Choose **Widgets → Widget font** for Sans, Dotted, Mono or Serif typography, updated
+live. Sans is the default; Dotted uses bundled open-source **Doto**, a Nothing-style
+alternative, with readable sans-serif labels. No font installation is needed. The TUI
+offers the same setting, or use `trpstrata config set widget_font mono` from the CLI.
+Toggle **Frosted widget glass** in the GUI/TUI to control its blur,
 or use `trpstrata config set widget_blur false`. Adjust strength with
 `trpstrata config set widget_blur_radius 24` (0–64). The Gaussian blur is sampled from the wallpaper;
 videos use their poster frame. It does not require a compositor extension.
@@ -389,7 +405,7 @@ trpstrata layout edit        # drag inside to move; resize any edge/corner; scro
 trpstrata layout done        # finish arranging; only widget buttons accept clicks
 trpstrata layout list
 trpstrata layout toggle calendar
-trpstrata layout reset       # replace placements with the default five-card layout
+trpstrata layout reset       # replace placements with the default layout
 ```
 
 Cards move while you drag, and positions/scales save on release. Scales range from
@@ -460,7 +476,7 @@ It restores your original look first, then removes the app.
 |---|---|
 | `trp_strata/palette.py` | Builds contrast-checked light/dark palettes from perceptually clustered wallpaper colours. `color_extraction.py` groups colours in OKLab, ignores tiny specks, and preserves muted accents. |
 | `trp_strata/core.py` | Applies them: a small GTK theme ("trpStrata A"/"B" in `~/.local/share/themes`, adw-gtk3 underneath plus your colours), the light/dark setting, a GNOME Terminal profile, and the lock-screen picture. Saves your original settings first. GTK only re-reads a theme when its name changes, so each recolour flips between the two identical copies and open apps restyle live. |
-| `trp_strata/desktop.py` | A small helper started at login. GNOME's own wallpaper is locked at 42, so it draws the wallpaper in a desktop window behind everything. Pictures cost almost nothing once drawn. Videos play through VLC and pause when a window is maximised or the screen is locked. It also handles the rotation timer and the auto light/dark switch. |
+| `trp_strata/desktop.py` | A small helper started at login. Still wallpapers use GNOME's native picture settings through the personal dconf profile. Videos use their cached poster natively and play through VLC in the existing desktop window, pausing when a window is maximised or the screen is locked. It also handles the rotation timer and the auto light/dark switch. |
 | `trp_strata/app.py` | The window (GTK 4 + libadwaita). |
 | `trp_strata/tui.py` | Interactive curses terminal controls; actions reuse the CLI in background processes. |
 | `trp_strata/media.py` | Shared image/video discovery without GTK imports. |
@@ -487,5 +503,5 @@ Older GTK 3 apps (Files, Terminal…) take the colours through the
   Other libadwaita apps (Settings, Text Editor…) only read their colours when they start, so they change
   the next time you open them.
 
-- X11 sessions only (the default at 42).
-- Videos need VLC and use more memory than pictures (about 75–130 MB while playing).
+- Native still wallpapers also work outside X11; desktop widgets and animated video playback remain X11 features.
+- Animated videos need VLC and use more memory than pictures (about 75–130 MB while playing); without VLC, their poster frame remains available natively.

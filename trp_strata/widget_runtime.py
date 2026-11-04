@@ -137,17 +137,28 @@ class DesktopWidgets:
         fallback = "@define-color ws_paper #171A21; @define-color ws_ink #F4F5F7; " \
                    "@define-color ws_muted #BAC0CE; @define-color ws_accent #91B9FF; " \
                    "@define-color ws_sheet #232833; @define-color ws_on_accent #111827; " \
-                   "@define-color ws_accent_text #A3C8FF; @define-color ws_shadow #000000;\n"
+                   "@define-color ws_accent_text #A3C8FF; @define-color ws_shadow #000000; " \
+                   "@define-color ws_ansi_black #171A21; @define-color ws_ansi_red #FF6B81; " \
+                   "@define-color ws_ansi_green #8BD49C; @define-color ws_ansi_yellow #F2C879; " \
+                   "@define-color ws_ansi_blue #91B9FF; @define-color ws_ansi_magenta #E39BD4; " \
+                   "@define-color ws_ansi_cyan #80D4D4; @define-color ws_ansi_white #F4F5F7; " \
+                   "@define-color ws_ansi_bright_black #BAC0CE; @define-color ws_ansi_bright_red #FF9AAA; " \
+                   "@define-color ws_ansi_bright_green #B4E7BE; @define-color ws_ansi_bright_yellow #F8DDA4; " \
+                   "@define-color ws_ansi_bright_blue #A3C8FF; @define-color ws_ansi_bright_magenta #F0BCE4; " \
+                   "@define-color ws_ansi_bright_cyan #A8E8E8; @define-color ws_ansi_bright_white #FFFFFF;\n"
         try:
             theme = Path(core.THEME_CSS).read_text() if Path(core.THEME_CSS).exists() else ""
             custom = Path(core.WIDGETS_CSS).read_text() if Path(core.WIDGETS_CSS).exists() else ""
+            colors = styles.DIRECTORY.joinpath("colors.css").read_text()
             font_css = widget_fonts.css(self.config["widget_font"])
-            provider.load_from_data((fallback + theme + styles.DIRECTORY.joinpath("widgets.css").read_text() + font_css + custom).encode())
+            provider.load_from_data((fallback + theme + colors + styles.DIRECTORY.joinpath("widgets.css").read_text()
+                                     + font_css + custom).encode())
         except (OSError, GLib.Error) as error:
             log.warning("Cannot reload widget CSS; keeping previous style: %s", error)
             if self.provider is None:
                 provider = Gtk.CssProvider()
-                provider.load_from_data((fallback + styles.DIRECTORY.joinpath("widgets.css").read_text()
+                provider.load_from_data((fallback + styles.DIRECTORY.joinpath("colors.css").read_text()
+                                         + styles.DIRECTORY.joinpath("widgets.css").read_text()
                                          + widget_fonts.css(self.config["widget_font"])).encode())
             else:
                 provider = None
