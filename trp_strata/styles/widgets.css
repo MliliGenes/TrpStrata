@@ -122,11 +122,25 @@ window#ws-desktop-widgets decoration,
   letter-spacing: -0.025em;
   color: @ws_ink;
 }
+
+#ws-desktop-widgets .clock-hours {
+  color: @ws_ink;
+  font-size: 6em;
+  font-weight: 500;
+}
+
+#ws-desktop-widgets .clock-minutes {
+  color: @ws_ink;
+  font-size: 6em;
+  font-weight: 500;
+  color: @ws_ink;
+}
+
 #ws-desktop-widgets .clock-date {
   color: inherit;
   padding-top: 0.15em;
   font-size: 0.82em;
-  letter-spacing: 0.04em;
+  color: @ws_ink;
 }
 
 /* --- Calendar ------------------------------------------------------------ */
