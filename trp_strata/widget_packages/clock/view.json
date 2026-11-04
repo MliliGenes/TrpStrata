@@ -4,7 +4,17 @@
     "type": "Column", "spacing": 8, "class_name": "desktop-clock",
     "visible": {"$bind": "state.visible"},
     "children": [
-      {"type": "Text", "text": {"$bind": "state.time"}, "class_name": "clock-time", "key": "time"},
+      {
+        "type": "Text",
+        "text": {"$bind": "state.hours"},
+        "style": {"fontSize": 80, "fontWeight": 600}
+      },
+      {
+        "type": "Text",
+        "text": {"$bind": "state.minutes"},
+        "style": {"fontSize": 80, "fontWeight": 600}
+      },
+  
       {"type": "Text", "text": {"$bind": "state.date"}, "class_name": "clock-date", "visible": {"$bind": "state.show_date"}, "key": "date"}
     ]
   }
