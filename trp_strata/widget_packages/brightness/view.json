@@ -1,15 +1,19 @@
 {
   "version": 1,
   "view": {
-    "type": "Column", "spacing": 8, "class_name": "launcher-card device-card brightness-card",
+    "type": "Column", "class_name": "gap-2 min-w-em-15",
     "children": [
-      {"type": "Row", "spacing": 8, "class_name": "device-header", "children": [
-        {"type": "Text", "text": {"$bind": "state.title"}, "class_name": "widget-label", "align": "start", "expand": true, "key": "title"},
-        {"type": "Text", "text": {"$bind": "state.level"}, "class_name": "device-level", "key": "level"}
+      {"type": "Row", "class_name": "gap-2", "children": [
+        {"type": "Text", "text": {"$bind": "state.title"}, "class_name": "text-em-0.72 font-semibold tracking-widest text-muted self-start text-left grow", "key": "title"},
+        {"type": "Text", "text": {"$bind": "state.level"}, "class_name": "text-em-1.2 font-semibold tracking-tight text-primary light:text-muted red:text-on-accent/76", "key": "level"}
       ]},
-      {"type": "Slider", "value": {"$bind": "state.value"}, "label": {"$bind": "state.label"}, "events": {"change": "change"}, "sensitive": {"$bind": "state.available"}, "class_name": "device-slider", "key": "level-slider"},
-      {"type": "Button", "text": {"$bind": "state.mute_label"}, "events": {"click": "mute"}, "sensitive": {"$bind": "state.available"}, "visible": {"$bind": "state.show_mute"}, "class_name": "device-toggle button-outline", "key": "mute"},
-      {"type": "Text", "text": {"$bind": "state.error"}, "visible": {"$bind": "state.show_error"}, "wrap": true, "max_width_chars": 32, "align": "start", "class_name": "widget-status", "key": "error"}
+      {"type": "Slider", "value": {"$bind": "state.value"}, "label": {"$bind": "state.label"}, "events": {"change": "change"}, "sensitive": {"$bind": "state.available"}, "class_name": "min-w-em-13 min-h-em-1.5", "key": "level-slider"},
+      {"type": "Button", "text": {"$bind": "state.mute_label"}, "events": {"click": "mute"}, "sensitive": {"$bind": "state.available"}, "visible": {"$bind": "state.show_mute"}, "key": "mute", "class_name": [
+        "bg-transparent border-primary/18 hover:bg-primary/6 hover:border-primary/24",
+        "light:bg-primary/5.5 light:border-primary/12 light:hover:bg-primary/10 light:hover:border-primary/24 light:active:bg-accent light:active:text-on-accent light:focus:border-accent light:disabled:bg-transparent light:disabled:text-muted",
+        "red:bg-on-accent/10 red:border-on-accent/22 red:text-inherit red:hover:bg-accent-hover red:hover:border-on-accent red:hover:text-on-accent red:active:bg-accent-hover red:active:border-on-accent red:active:text-on-accent red:disabled:bg-transparent red:disabled:border-on-accent/14 red:disabled:text-on-accent/55"
+      ]},
+      {"type": "Text", "text": {"$bind": "state.error"}, "visible": {"$bind": "state.show_error"}, "max_width_chars": 32, "class_name": "text-em-0.8 text-muted red:text-on-accent/76 self-start text-left text-wrap", "key": "error"}
     ]
   }
 }

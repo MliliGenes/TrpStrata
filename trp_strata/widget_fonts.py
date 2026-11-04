@@ -27,6 +27,12 @@ def css(preset):
 """
 
 
+def utility_css(preset):
+    """The font utilities follow the configured preset, without changing legacy hooks."""
+    _label, body, display = PRESETS[preset]
+    return f".font-body {{ font-family: {body}; }}\n.font-display {{ font-family: {display}; }}"
+
+
 def register():
     """Make Doto available to this process without installing fonts into the user's home."""
     global _registered

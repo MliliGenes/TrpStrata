@@ -11,6 +11,7 @@ import sys
 
 from . import storage
 from . import settings
+from .widget_utilities import UTILITIES, utility_style
 
 DEFAULT_FILE = Path(__file__).with_name("desktop_layout.json")
 ANCHORS = tuple(f"{vertical}-{horizontal}" for vertical in ("top", "center", "bottom")
@@ -76,8 +77,12 @@ def parse_layout(document):
             raise ValueError("Widget enabled must be true or false")
         if type(placement.scale) not in (int, float) or not math.isfinite(placement.scale) or not .5 <= placement.scale <= 2.5:
             raise ValueError("Widget scale must be between 0.5 and 2.5")
-        if not isinstance(placement.class_name, str) or any(not IDENTIFIER.fullmatch(name) for name in placement.class_name.split()):
-            raise ValueError("class_name must contain simple space-separated CSS classes")
+        if not isinstance(placement.class_name, str):
+            raise ValueError("class_name must contain space-separated CSS classes or widget utilities")
+        utility_style(placement.class_name)
+        if any(not IDENTIFIER.fullmatch(name) and name not in UTILITIES and not name.startswith("u:")
+               for name in placement.class_name.split()):
+            raise ValueError("class_name must contain simple CSS classes or known widget utilities")
         if not isinstance(placement.props, dict) or "config" in placement.props or "key" in placement.props:
             raise ValueError("Widget props must be an object; config and key are supplied by the runtime")
         result.append(placement)

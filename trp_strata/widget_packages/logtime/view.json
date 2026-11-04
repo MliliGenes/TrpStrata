@@ -1,22 +1,34 @@
 {
   "version": 1,
   "view": {
-    "type": "Column", "spacing": 10, "class_name": "logtime-card",
+    "type": "Column", "class_name": "gap-2.5 min-w-em-18",
     "children": [
-      {"type": "Text", "text": {"$bind": "state.login"}, "class_name": "logtime-login", "key": "login"},
-      {"type": "Ring", "value": {"$bind": "state.fraction"}, "class_name": "logtime-ring", "key": "ring", "children": [
-        {"type": "Text", "text": {"$bind": "state.percent"}, "class_name": "logtime-percent", "key": "percent"},
-        {"type": "Text", "text": {"$bind": "state.hours"}, "class_name": "logtime-hours", "key": "hours"},
-        {"type": "Text", "text": "Hours", "class_name": "logtime-unit"}
+      {"type": "Text", "text": {"$bind": "state.login"}, "class_name": "text-em-0.72 font-semibold font-body tracking-widest text-muted bg-transparent border-0 py-em-0.2 px-em-0", "key": "login"},
+      {"type": "Ring", "value": {"$bind": "state.fraction"}, "class_name": "min-w-em-14 min-h-em-14 text-accent red:text-on-accent/76", "key": "ring", "children": [
+        {"type": "Text", "text": {"$bind": "state.percent"}, "class_name": "text-em-0.8 font-medium font-display tracking-wide text-muted", "key": "percent"},
+        {"type": "Text", "text": {"$bind": "state.hours"}, "class_name": "text-em-3.8 font-semibold font-display tracking-tighter text-primary red:text-on-accent", "key": "hours"},
+        {"type": "Text", "text": "Hours", "class_name": "text-em-0.78 text-muted"}
       ]},
-      {"type": "Text", "text": {"$bind": "state.month"}, "class_name": "widget-label", "key": "month"},
-      {"type": "Text", "text": {"$bind": "state.period"}, "class_name": "logtime-period", "key": "period"},
-      {"type": "Row", "spacing": 8, "class_name": "logtime-navigation", "children": [
-        {"type": "Button", "text": "Prev", "events": {"click": {"handler": "shift", "args": -1}}, "class_name": "button-outline", "expand": true, "key": "prev"},
-        {"type": "Button", "text": "Next", "events": {"click": {"handler": "shift", "args": 1}}, "class_name": "button-outline", "expand": true, "key": "next"}
+      {"type": "Text", "text": {"$bind": "state.month"}, "class_name": "text-em-0.72 font-semibold tracking-widest text-muted", "key": "month"},
+      {"type": "Text", "text": {"$bind": "state.period"}, "class_name": "text-em-0.8 text-muted red:text-on-accent/76", "key": "period"},
+      {"type": "Row", "class_name": "gap-2", "children": [
+        {"type": "Button", "text": "Prev", "events": {"click": {"handler": "shift", "args": -1}}, "key": "prev", "class_name": [
+          "grow bg-transparent border-primary/18 hover:bg-primary/6 hover:border-primary/24",
+          "light:bg-primary/5.5 light:border-primary/12 light:hover:bg-primary/10 light:hover:border-primary/24 light:active:bg-accent light:active:text-on-accent light:focus:border-accent light:disabled:bg-transparent light:disabled:text-muted",
+          "red:bg-on-accent/10 red:border-on-accent/22 red:text-inherit red:hover:bg-accent-hover red:hover:border-on-accent red:hover:text-on-accent red:active:bg-accent-hover red:active:border-on-accent red:active:text-on-accent red:disabled:bg-transparent red:disabled:border-on-accent/14 red:disabled:text-on-accent/55"
+        ]},
+        {"type": "Button", "text": "Next", "events": {"click": {"handler": "shift", "args": 1}}, "key": "next", "class_name": [
+          "grow bg-transparent border-primary/18 hover:bg-primary/6 hover:border-primary/24",
+          "light:bg-primary/5.5 light:border-primary/12 light:hover:bg-primary/10 light:hover:border-primary/24 light:active:bg-accent light:active:text-on-accent light:focus:border-accent light:disabled:bg-transparent light:disabled:text-muted",
+          "red:bg-on-accent/10 red:border-on-accent/22 red:text-inherit red:hover:bg-accent-hover red:hover:border-on-accent red:hover:text-on-accent red:active:bg-accent-hover red:active:border-on-accent red:active:text-on-accent red:disabled:bg-transparent red:disabled:border-on-accent/14 red:disabled:text-on-accent/55"
+        ]}
       ]},
-      {"type": "Button", "text": {"$bind": "state.refresh_label"}, "events": {"click": "reload"}, "sensitive": {"$bind": "state.can_refresh"}, "class_name": "logtime-refresh button-primary", "key": "refresh"},
-      {"type": "Text", "text": {"$bind": "state.status"}, "wrap": true, "max_width_chars": 30, "class_name": "logtime-status", "key": "status"}
+      {"type": "Button", "text": {"$bind": "state.refresh_label"}, "events": {"click": "reload"}, "sensitive": {"$bind": "state.can_refresh"}, "key": "refresh", "class_name": [
+        "bg-accent border-accent text-on-accent hover:bg-accent-soft hover:border-accent-soft active:bg-accent-strong active:border-accent-strong",
+        "light:bg-primary/5.5 light:border-primary/12 light:hover:bg-primary/10 light:hover:border-accent-soft light:active:bg-accent light:active:border-accent-strong light:active:text-on-accent light:focus:border-accent light:disabled:bg-transparent light:disabled:text-muted",
+        "red:bg-on-accent/10 red:border-on-accent/22 red:text-inherit red:hover:bg-accent-hover red:hover:border-on-accent red:hover:text-on-accent red:active:bg-accent-hover red:active:border-on-accent red:active:text-on-accent red:disabled:bg-transparent red:disabled:border-on-accent/14 red:disabled:text-on-accent/55"
+      ]},
+      {"type": "Text", "text": {"$bind": "state.status"}, "max_width_chars": 30, "class_name": "text-em-0.8 text-muted red:text-on-accent/76 text-wrap", "key": "status"}
     ]
   }
 }

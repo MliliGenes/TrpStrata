@@ -1,0 +1,14 @@
+{
+  "brightness": {"": "launcher-card device-card brightness-card", "/0": "device-header", "/0/0": "widget-label", "/0/1": "device-level", "/1": "device-slider", "/2": "device-toggle button-outline", "/3": "widget-status"},
+  "calendar": {"": "calendar-card", "/0": "widget-label", "/1": "calendar-day", "/2": "calendar-grid", "/2/0/template": {"$bind": "item.class"}},
+  "cleaner": {"": "cleaner-card", "/0": "widget-label", "/1": "widget-status", "/2": "widget-hint", "/3": "cleaner-actions", "/3/0": "button-outline", "/3/1": "button-primary"},
+  "clock": {"": "desktop-clock", "/0": "clock-hours", "/1": "clock-minutes", "/2": "clock-date"},
+  "file_search": {"": "launcher-card file-search-card", "/0": "file-search-header", "/0/0": "widget-label", "/0/1": "button-outline", "/1": "file-query", "/2": "file-results", "/2/0/template/0": "file-result button-secondary", "/2/0/template/1": "file-search-path", "/3": "widget-hint", "/4": "widget-status"},
+  "launcher": {"": "launcher-card launcher-dock", "/0": "launcher-row", "/0/0/template": "launcher-app button-ghost", "/0/1": "dock-pages", "/0/1/0": "dock-page button-outline", "/0/1/1": "dock-page button-outline", "/0/2": "dock-search"},
+  "logtime": {"": "logtime-card", "/0": "logtime-login", "/1": "logtime-ring", "/1/0": "logtime-percent", "/1/1": "logtime-hours", "/1/2": "logtime-unit", "/2": "widget-label", "/3": "logtime-period", "/4": "logtime-navigation", "/4/0": "button-outline", "/4/1": "button-outline", "/5": "logtime-refresh button-primary", "/6": "logtime-status"},
+  "notes": {"": "notes-card", "/0": "widget-label", "/1": "notes-text"},
+  "now_playing": {"": "media-card", "/0": "widget-label", "/1": "media-artwork", "/2": "media-title", "/3": "media-artist", "/4": "media-detail", "/5": "media-controls", "/5/0/template": "media-control button-ghost", "/6": "media-detail"},
+  "quick_links": {"": "launcher-card quick-links-card", "/0": "widget-label", "/1/template": "quick-link button-secondary", "/2": "widget-hint", "/3": "widget-status"},
+  "system": {"": "system-card", "/0": "widget-label", "/1/template/0/0": "metric-label", "/1/template/0/1": "metric-value", "/1/template/1": "metric-progress"},
+  "volume": {"": "launcher-card device-card volume-card", "/0": "device-header", "/0/0": "widget-label", "/0/1": "device-level", "/1": "device-slider", "/2": "device-toggle button-outline", "/3": "widget-status"}
+}

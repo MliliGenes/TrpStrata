@@ -1,15 +1,19 @@
 {
   "version": 1,
   "view": {
-    "type": "Column", "spacing": 8, "class_name": "launcher-card quick-links-card",
+    "type": "Column", "class_name": "gap-2",
     "children": [
-      {"type": "Text", "text": {"$bind": "state.title"}, "class_name": "widget-label", "align": "start", "key": "title"},
+      {"type": "Text", "text": {"$bind": "state.title"}, "class_name": "text-em-0.72 font-semibold tracking-widest text-muted self-start text-left", "key": "title"},
       {"repeat": {"$bind": "state.links"}, "key": "id", "template": {
         "type": "Button", "text": {"$bind": "item.label"}, "events": {"click": {"handler": "launch", "args": {"$bind": "item"}}},
-        "system_icon": {"$bind": "item.icon"}, "tooltip": {"$bind": "item.url"}, "class_name": "quick-link button-secondary"
+        "system_icon": {"$bind": "item.icon"}, "tooltip": {"$bind": "item.url"}, "class_name": [
+          "bg-primary/5.5 border-transparent hover:bg-primary/9 hover:border-primary/8",
+          "light:bg-primary/5.5 light:border-primary/12 light:hover:bg-primary/10 light:hover:border-primary/8 light:active:bg-accent light:active:text-on-accent light:focus:border-accent light:disabled:bg-transparent light:disabled:text-muted",
+          "red:bg-on-accent/10 red:border-on-accent/22 red:text-inherit red:hover:bg-accent-hover red:hover:border-on-accent red:hover:text-on-accent red:active:bg-accent-hover red:active:border-on-accent red:active:text-on-accent red:disabled:bg-transparent red:disabled:border-on-accent/14 red:disabled:text-on-accent/55"
+        ]
       }},
-      {"type": "Text", "text": "Add websites using Edit beside Quick links in the app.", "wrap": true, "max_width_chars": 30, "align": "start", "visible": {"$bind": "state.show_hint"}, "class_name": "widget-hint", "key": "hint"},
-      {"type": "Text", "text": {"$bind": "state.status"}, "wrap": true, "max_width_chars": 30, "align": "start", "visible": {"$bind": "state.show_status"}, "class_name": "widget-status", "key": "status"}
+      {"type": "Text", "text": "Add websites using Edit beside Quick links in the app.", "max_width_chars": 30, "visible": {"$bind": "state.show_hint"}, "class_name": "text-em-0.76 text-muted red:text-on-accent/76 self-start text-left text-wrap", "key": "hint"},
+      {"type": "Text", "text": {"$bind": "state.status"}, "max_width_chars": 30, "visible": {"$bind": "state.show_status"}, "class_name": "text-em-0.8 text-muted red:text-on-accent/76 self-start text-left text-wrap", "key": "status"}
     ]
   }
 }

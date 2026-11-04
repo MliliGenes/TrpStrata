@@ -430,14 +430,23 @@ visibility and props. Edit `widgets.css` in that directory for appearance; both 
 live. Use `em` units so your styles scale with the card:
 
 ```css
-#widget-clock .clock-time {
+#widget-clock .text-em-6 {
   font-family: monospace;
   font-size: 3.8em;
   color: @ws_accent;
 }
 ```
 
-GTK CSS handles appearance. Structured widget views add grids, spacing, sizing,
+Prefer not to write CSS? Use Tailwind-like utilities in a view's `class_name`:
+`"p-4 gap-3 bg-surface rounded-xl"` or `"text-2xl font-bold text-accent"`.
+Outer cards accept utilities in their `layout.json` entry's `class_name` too.
+See the [utility class guide](docs/widget-utilities.md) for the predefined set and examples.
+All twelve built-ins use only predefined utilities, without widget-specific class names.
+The real class catalogue lives in
+[`trp_strata/styles/widgets.css`](trp_strata/styles/widgets.css); `-em-` utilities preserve
+card scaling and `font-display` follows the selected font preset.
+
+GTK CSS remains available. Structured widget views add grids, spacing, sizing,
 padding, state bindings, and named event handlers. Start an editable widget package:
 
 ```sh

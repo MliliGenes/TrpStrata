@@ -12,7 +12,8 @@ from .components import resolve  # noqa: E402
 from .gtk_icons import SvgIcon  # noqa: E402
 from .gtk_app_icons import AppIcon  # noqa: E402
 from .gtk_grid import Grid  # noqa: E402
-from .gtk_widget_styles import apply as apply_style, validate_tree  # noqa: E402
+from .gtk_widget_styles import apply as apply_style, validate_tree, install_utilities  # noqa: E402
+from .widget_utilities import css_classes  # noqa: E402
 from .widget_styles import grid_positions  # noqa: E402
 
 
@@ -32,6 +33,7 @@ class Mounted:
 class Renderer:
     """Render props into native GTK widgets. Use only on the GTK main thread."""
     def __init__(self, on_action=None):
+        install_utilities(Gdk.Screen.get_default())
         self.root = None
         self.on_action = on_action
         self.interactive = True
@@ -201,8 +203,8 @@ class Renderer:
         props = element.props
         if props != previous:
             context = widget.get_style_context()
-            old_classes = set(previous.get("class_name", "").split())
-            new_classes = set(props["class_name"].split())
+            old_classes = css_classes(previous.get("class_name", ""))
+            new_classes = css_classes(props["class_name"])
             for name in old_classes - new_classes:
                 context.remove_class(name)
             for name in new_classes - old_classes:

@@ -31,15 +31,15 @@ def main():
         assert abs(b.get_allocated_width() - 2 * a.get_allocated_width()) <= 2
         assert b.get_allocation().x - (a.get_allocation().x + a.get_allocated_width()) == 12
         assert a.get_xalign() == 1
-        font = a.get_style_context().get_property("font", Gtk.StateFlags.NORMAL)
-        assert font.get_size() / Pango.SCALE >= 20
+        font_size = a.get_style_context().get_property("font", Gtk.StateFlags.NORMAL).get_size()
+        assert font_size / Pango.SCALE >= 20
         renderer.render(Grid(Text("a", key="a"), Text("b", key="b"), columns=["1fr", "1fr"]))
         settle(window)
         assert renderer.find("a") is a
         assert a.get_xalign() == .5
         assert renderer.root.widget.get_size_request() == (-1, -1)
         assert renderer.root.widget.column_gap == 0
-        assert a.get_style_context().get_property("font", Gtk.StateFlags.NORMAL).get_size() < font.get_size()
+        assert a.get_style_context().get_property("font", Gtk.StateFlags.NORMAL).get_size() < font_size
         previous = renderer.root
         try:
             renderer.render(Text("bad", style={"color": "not-a-color"}))

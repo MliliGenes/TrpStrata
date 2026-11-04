@@ -1,23 +1,31 @@
 {
   "version": 1,
   "view": {
-    "type": "Column", "spacing": 8, "class_name": "launcher-card file-search-card",
+    "type": "Column", "class_name": "gap-2",
     "children": [
-      {"type": "Row", "spacing": 8, "class_name": "file-search-header", "children": [
-        {"type": "Text", "text": {"$bind": "state.title"}, "class_name": "widget-label", "align": "start", "expand": true},
-        {"type": "Button", "text": "Refresh", "events": {"click": "reload"}, "sensitive": {"$bind": "state.can_refresh"}, "class_name": "button-outline", "key": "refresh"}
+      {"type": "Row", "class_name": "gap-2", "children": [
+        {"type": "Text", "text": {"$bind": "state.title"}, "class_name": "text-em-0.72 font-semibold tracking-widest text-muted self-start text-left grow"},
+        {"type": "Button", "text": "Refresh", "events": {"click": "reload"}, "sensitive": {"$bind": "state.can_refresh"}, "key": "refresh", "class_name": [
+          "bg-transparent border-primary/18 hover:bg-primary/6 hover:border-primary/24",
+          "light:bg-primary/5.5 light:border-primary/12 light:hover:bg-primary/10 light:hover:border-primary/24 light:active:bg-accent light:active:text-on-accent light:focus:border-accent light:disabled:bg-transparent light:disabled:text-muted",
+          "red:bg-on-accent/10 red:border-on-accent/22 red:text-inherit red:hover:bg-accent-hover red:hover:border-on-accent red:hover:text-on-accent red:active:bg-accent-hover red:active:border-on-accent red:active:text-on-accent red:disabled:bg-transparent red:disabled:border-on-accent/14 red:disabled:text-on-accent/55"
+        ]}
       ]},
-      {"type": "Search", "text": {"$bind": "state.query"}, "events": {"change": "search"}, "placeholder": "Find files by name…", "class_name": "file-query", "key": "file-query"},
-      {"type": "Column", "spacing": 6, "class_name": "file-results", "children": [
+      {"type": "Search", "text": {"$bind": "state.query"}, "events": {"change": "search"}, "placeholder": "Find files by name…", "key": "file-query"},
+      {"type": "Column", "class_name": "gap-1.5", "children": [
         {"repeat": {"$bind": "state.results"}, "key": "id", "template": {
-          "type": "Column", "spacing": 2, "children": [
-            {"type": "Button", "text": {"$bind": "item.name"}, "events": {"click": {"handler": "launch", "args": {"$bind": "item.id"}}}, "system_icon": {"$bind": "item.icon"}, "tooltip": {"$bind": "item.id"}, "class_name": "file-result button-secondary"},
-            {"type": "Text", "text": {"$bind": "item.directory"}, "align": "start", "wrap": true, "max_width_chars": 36, "class_name": "file-search-path"}
+          "type": "Column", "class_name": "gap-0.5", "children": [
+            {"type": "Button", "text": {"$bind": "item.name"}, "events": {"click": {"handler": "launch", "args": {"$bind": "item.id"}}}, "system_icon": {"$bind": "item.icon"}, "tooltip": {"$bind": "item.id"}, "class_name": [
+              "bg-primary/5.5 border-transparent hover:bg-primary/9 hover:border-primary/8",
+              "light:bg-primary/5.5 light:border-primary/12 light:hover:bg-primary/10 light:hover:border-primary/8 light:active:bg-accent light:active:text-on-accent light:focus:border-accent light:disabled:bg-transparent light:disabled:text-muted",
+              "red:bg-on-accent/10 red:border-on-accent/22 red:text-inherit red:hover:bg-accent-hover red:hover:border-on-accent red:hover:text-on-accent red:active:bg-accent-hover red:active:border-on-accent red:active:text-on-accent red:disabled:bg-transparent red:disabled:border-on-accent/14 red:disabled:text-on-accent/55"
+            ]},
+            {"type": "Text", "text": {"$bind": "item.directory"}, "max_width_chars": 36, "class_name": "text-em-0.8 text-muted red:text-on-accent/76 self-start text-left text-wrap"}
           ]
         }}
       ]},
-      {"type": "Text", "text": "Type a name, abbreviation or a few words from the path.", "visible": {"$bind": "state.show_hint"}, "wrap": true, "max_width_chars": 36, "align": "start", "class_name": "widget-hint", "key": "hint"},
-      {"type": "Text", "text": {"$bind": "state.status"}, "wrap": true, "max_width_chars": 36, "align": "start", "class_name": "widget-status", "key": "status"}
+      {"type": "Text", "text": "Type a name, abbreviation or a few words from the path.", "visible": {"$bind": "state.show_hint"}, "max_width_chars": 36, "class_name": "text-em-0.76 text-muted red:text-on-accent/76 self-start text-left text-wrap", "key": "hint"},
+      {"type": "Text", "text": {"$bind": "state.status"}, "max_width_chars": 36, "class_name": "text-em-0.8 text-muted red:text-on-accent/76 self-start text-left text-wrap", "key": "status"}
     ]
   }
 }

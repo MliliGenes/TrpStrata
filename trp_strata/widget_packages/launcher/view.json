@@ -1,18 +1,30 @@
 {
   "version": 1,
   "view": {
-    "type": "Column", "spacing": 6, "class_name": "launcher-card launcher-dock",
+    "type": "Column", "class_name": "gap-1.5 bg-transparent shadow-none",
     "children": [
-      {"type": "Row", "spacing": 8, "class_name": "launcher-row", "children": [
+      {"type": "Row", "class_name": "gap-2", "children": [
         {"repeat": {"$bind": "state.apps"}, "key": "id", "template": {
           "type": "Button", "text": {"$bind": "item.name"}, "events": {"click": {"handler": "launch", "args": {"$bind": "item.id"}}},
-          "system_icon": {"$bind": "item.icon"}, "tooltip": {"$bind": "item.tooltip"}, "icon_position": "top", "show_label": false, "class_name": "launcher-app button-ghost"
+          "system_icon": {"$bind": "item.icon"}, "tooltip": {"$bind": "item.tooltip"}, "icon_position": "top", "show_label": false, "class_name": [
+            "min-w-em-3.25 min-h-em-3.25 p-em-0.45 rounded-em-0.55 label:font-medium label:text-em-0.84 bg-transparent border-transparent hover:bg-primary/9 hover:border-primary/8",
+            "light:bg-primary/5.5 light:border-primary/12 light:hover:bg-primary/10 light:hover:border-primary/8 light:active:bg-accent light:active:text-on-accent light:focus:border-accent light:disabled:bg-transparent light:disabled:text-muted",
+            "red:bg-on-accent/10 red:border-on-accent/22 red:text-inherit red:hover:bg-accent-hover red:hover:border-on-accent red:hover:text-on-accent red:active:bg-accent-hover red:active:border-on-accent red:active:text-on-accent red:disabled:bg-transparent red:disabled:border-on-accent/14 red:disabled:text-on-accent/55"
+          ]
         }},
-        {"type": "Row", "visible": {"$bind": "state.show_pages"}, "spacing": 4, "class_name": "dock-pages", "children": [
-          {"type": "Button", "text": "‹", "tooltip": "Previous applications", "class_name": "dock-page button-outline", "events": {"click": {"handler": "move", "args": -1}}, "sensitive": {"$bind": "state.can_previous"}},
-          {"type": "Button", "text": "›", "tooltip": "Next applications", "class_name": "dock-page button-outline", "events": {"click": {"handler": "move", "args": 1}}, "sensitive": {"$bind": "state.can_next"}}
+        {"type": "Row", "visible": {"$bind": "state.show_pages"}, "class_name": "gap-1", "children": [
+          {"type": "Button", "text": "‹", "tooltip": "Previous applications", "events": {"click": {"handler": "move", "args": -1}}, "sensitive": {"$bind": "state.can_previous"}, "class_name": [
+            "min-w-em-1.8 py-em-0.35 px-em-0.45 rounded-em-0.45 bg-transparent border-primary/12 hover:bg-primary/6 hover:border-primary/24",
+            "light:bg-primary/5.5 light:border-primary/12 light:hover:bg-primary/10 light:hover:border-primary/24 light:active:bg-accent light:active:text-on-accent light:focus:border-accent light:disabled:bg-transparent light:disabled:text-muted",
+            "red:bg-on-accent/10 red:border-on-accent/22 red:text-inherit red:hover:bg-accent-hover red:hover:border-on-accent red:hover:text-on-accent red:active:bg-accent-hover red:active:border-on-accent red:active:text-on-accent red:disabled:bg-transparent red:disabled:border-on-accent/14 red:disabled:text-on-accent/55"
+          ]},
+          {"type": "Button", "text": "›", "tooltip": "Next applications", "events": {"click": {"handler": "move", "args": 1}}, "sensitive": {"$bind": "state.can_next"}, "class_name": [
+            "min-w-em-1.8 py-em-0.35 px-em-0.45 rounded-em-0.45 bg-transparent border-primary/12 hover:bg-primary/6 hover:border-primary/24",
+            "light:bg-primary/5.5 light:border-primary/12 light:hover:bg-primary/10 light:hover:border-primary/24 light:active:bg-accent light:active:text-on-accent light:focus:border-accent light:disabled:bg-transparent light:disabled:text-muted",
+            "red:bg-on-accent/10 red:border-on-accent/22 red:text-inherit red:hover:bg-accent-hover red:hover:border-on-accent red:hover:text-on-accent red:active:bg-accent-hover red:active:border-on-accent red:active:text-on-accent red:disabled:bg-transparent red:disabled:border-on-accent/14 red:disabled:text-on-accent/55"
+          ]}
         ]},
-        {"type": "Search", "text": {"$bind": "state.query"}, "events": {"change": "search"}, "placeholder": "Search apps…", "key": "app-search", "class_name": "dock-search"}
+        {"type": "Search", "text": {"$bind": "state.query"}, "events": {"change": "search"}, "placeholder": "Search apps…", "key": "app-search", "class_name": "min-w-em-16 ml-em-0.45"}
       ]}
     ]
   }

@@ -1,22 +1,26 @@
 {
   "version": 1,
   "view": {
-    "type": "Column", "spacing": 8, "class_name": "media-card",
+    "type": "Column", "class_name": "gap-2 min-w-em-18",
     "children": [
-      {"type": "Text", "text": "NOW PLAYING", "class_name": "widget-label", "key": "label"},
-      {"type": "Image", "data": {"$bind": "state.artwork"}, "class_name": "media-artwork", "key": "artwork"},
-      {"type": "Text", "text": {"$bind": "state.title"}, "wrap": true, "max_width_chars": 28, "class_name": "media-title", "key": "title"},
-      {"type": "Text", "text": {"$bind": "state.artist"}, "visible": {"$bind": "state.show_artist"}, "wrap": true, "max_width_chars": 28, "class_name": "media-artist", "key": "artist"},
-      {"type": "Text", "text": {"$bind": "state.album"}, "visible": {"$bind": "state.show_album"}, "wrap": true, "max_width_chars": 28, "class_name": "media-detail", "key": "album"},
-      {"type": "Row", "spacing": 8, "class_name": "media-controls", "children": [
+      {"type": "Text", "text": "NOW PLAYING", "class_name": "text-em-0.72 font-semibold tracking-widest text-muted", "key": "label"},
+      {"type": "Image", "data": {"$bind": "state.artwork"}, "class_name": "min-w-em-14 min-h-em-14", "key": "artwork"},
+      {"type": "Text", "text": {"$bind": "state.title"}, "max_width_chars": 28, "class_name": "text-em-1.05 font-semibold text-primary red:text-on-accent text-wrap", "key": "title"},
+      {"type": "Text", "text": {"$bind": "state.artist"}, "visible": {"$bind": "state.show_artist"}, "max_width_chars": 28, "class_name": "text-em-0.9 text-muted red:text-on-accent/76 text-wrap", "key": "artist"},
+      {"type": "Text", "text": {"$bind": "state.album"}, "visible": {"$bind": "state.show_album"}, "max_width_chars": 28, "class_name": "text-em-0.8 text-muted red:text-on-accent/76 text-wrap", "key": "album"},
+      {"type": "Row", "class_name": "gap-2", "children": [
         {"repeat": {"$bind": "state.controls"}, "key": "id", "template": {
           "type": "Button", "text": {"$bind": "item.label"},
           "events": {"click": {"handler": "control", "args": {"$bind": "item.id"}}},
           "icon": {"$bind": "item.icon"}, "tooltip": {"$bind": "item.label"},
-          "sensitive": {"$bind": "item.enabled"}, "expand": true, "class_name": "media-control button-ghost"
+          "sensitive": {"$bind": "item.enabled"}, "class_name": [
+            "grow text-em-1.1 p-em-0.5 min-w-em-2.4 min-h-em-2.4 rounded-em-0.5 bg-transparent border-primary/10 hover:bg-accent/16 hover:border-accent/38 hover:text-inherit active:bg-accent active:border-accent active:text-on-accent",
+            "light:bg-primary/5.5 light:border-primary/12 light:hover:bg-primary/10 light:hover:border-accent/38 light:active:bg-accent light:active:border-accent light:active:text-on-accent light:focus:border-accent light:disabled:bg-transparent light:disabled:text-muted",
+            "red:bg-on-accent/10 red:border-on-accent/22 red:text-inherit red:hover:bg-accent-hover red:hover:border-on-accent red:hover:text-on-accent red:active:bg-accent-hover red:active:border-on-accent red:active:text-on-accent red:disabled:bg-transparent red:disabled:border-on-accent/14 red:disabled:text-on-accent/55"
+          ]
         }}
       ]},
-      {"type": "Text", "text": {"$bind": "state.status"}, "wrap": true, "max_width_chars": 28, "class_name": "media-detail", "key": "status"}
+      {"type": "Text", "text": {"$bind": "state.status"}, "max_width_chars": 28, "class_name": "text-em-0.8 text-muted red:text-on-accent/76 text-wrap", "key": "status"}
     ]
   }
 }

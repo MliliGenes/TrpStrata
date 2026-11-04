@@ -1,10 +1,10 @@
 {
   "version": 1,
   "view": {
-    "type": "Column", "spacing": 10, "class_name": "notes-card",
+    "type": "Column", "class_name": "gap-2.5",
     "children": [
-      {"type": "Text", "text": {"$bind": "state.title"}, "class_name": "widget-label", "align": "start", "key": "title"},
-      {"type": "Text", "text": {"$bind": "state.text"}, "class_name": "notes-text", "align": "start", "wrap": true, "max_width_chars": 25, "key": "body"}
+      {"type": "Text", "text": {"$bind": "state.title"}, "class_name": "text-em-0.72 font-semibold tracking-widest text-muted self-start text-left", "key": "title"},
+      {"type": "Text", "text": {"$bind": "state.text"}, "class_name": "text-em-1 text-inherit py-em-0.15 self-start text-left text-wrap", "max_width_chars": 25, "key": "body"}
     ]
   }
 }

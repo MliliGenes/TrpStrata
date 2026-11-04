@@ -197,9 +197,9 @@ def Grid(*children, columns=("1fr",), rows=("auto",), spacing=0, class_name="", 
 def _styled(factory):
     @wraps(factory)
     def build(*args, style=None, **kwargs):
-        from .widget_styles import validate
+        from .widget_utilities import resolve_style
         element = factory(*args, **kwargs)
-        return replace(element, props={**element.props, "style": validate(style)})
+        return replace(element, props={**element.props, "style": resolve_style(element.props["class_name"], style)})
     return build
 
 

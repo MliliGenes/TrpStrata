@@ -1,5 +1,6 @@
 """Validated structured styles shared by Python and JSON views (no GTK dependency)."""
 import math
+import re
 
 CSS = {
     "background": "background", "color": "color", "fontFamily": "font-family",
@@ -10,10 +11,11 @@ CSS = {
     "paddingBottom": "padding-bottom", "paddingLeft": "padding-left",
     "margin": "margin", "marginTop": "margin-top", "marginRight": "margin-right",
     "marginBottom": "margin-bottom", "marginLeft": "margin-left",
-    "minWidth": "min-width", "minHeight": "min-height",
+    "minWidth": "min-width", "minHeight": "min-height", "letterSpacing": "letter-spacing",
 }
 LENGTHS = {key for key in CSS if key.startswith(("padding", "margin", "min"))} | {
-    "fontSize", "borderRadius", "borderWidth"}
+    "fontSize", "borderRadius", "borderWidth", "letterSpacing"}
+EM_LENGTH = re.compile(r"-?(?:\d+(?:\.\d+)?)em\Z")
 LAYOUT = {"width", "height", "gap", "rowGap", "columnGap", "alignSelf", "valignSelf",
           "expand", "vexpand", "textAlign", "wrap", "columns", "rows", "column", "row",
           "columnSpan", "rowSpan"}
@@ -59,8 +61,14 @@ def validate(style):
                 raise ValueError(f"Invalid {key}: {value!r}")
         elif key in LENGTHS or key in ("width", "height", "gap", "rowGap", "columnGap"):
             values = value if key in ("padding", "margin") and isinstance(value, (list, tuple)) else [value]
-            if not 1 <= len(values) <= 4 or any(type(v) not in (int, float) or not math.isfinite(v) or v < 0 for v in values):
-                raise ValueError(f"{key} needs nonnegative finite pixel values")
+            def valid_length(v):
+                negative_allowed = key == "letterSpacing"
+                if key in LENGTHS and isinstance(v, str) and EM_LENGTH.fullmatch(v):
+                    number = float(v[:-2])
+                    return math.isfinite(number) and (negative_allowed or number >= 0)
+                return type(v) in (int, float) and math.isfinite(v) and (negative_allowed or v >= 0)
+            if not 1 <= len(values) <= 4 or any(not valid_length(v) for v in values):
+                raise ValueError(f"{key} needs finite pixel values or CSS em lengths (nonnegative except letterSpacing)")
         elif key == "fontWeight":
             if value not in ("normal", "bold") and (type(value) is not int or not 100 <= value <= 1000):
                 raise ValueError("Invalid fontWeight")
@@ -76,7 +84,7 @@ def css(style):
             continue
         if key in LENGTHS:
             values = value if isinstance(value, (list, tuple)) else [value]
-            value = " ".join(f"{v:g}px" for v in values)
+            value = " ".join(v if isinstance(v, str) else f"{v:g}px" for v in values)
         declarations.append(f"{CSS[key]}: {value};")
     return "* { " + " ".join(declarations) + " }"
 

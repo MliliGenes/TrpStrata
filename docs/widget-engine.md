@@ -168,6 +168,18 @@ with the declared key field; sibling keys must be unique strings or integers.
 
 ## Styles and sizing
 
+Prefer predefined classes if you don't want to write CSS:
+
+```json
+{"type": "Text", "text": "Hello", "class_name": "text-2xl font-bold text-accent"}
+```
+
+Utilities support spacing, sizing, colours, typography, borders and native grid/layout
+properties. They work in Python and JSON views, and on outer cards through each
+`layout.json` entry's `class_name`. Explicit `style` values take precedence over utilities.
+See the [utility class reference](widget-utilities.md) for the complete set, examples
+and optional `u:` prefix for strict validation. Existing custom CSS classes still work.
+
 Every primitive supports `style` in both JSON and Python:
 
 ```python
@@ -191,7 +203,8 @@ Grid(
 | `alignSelf`, `valignSelf` | Widget alignment: `start`, `center`, `end`, `fill` |
 | `expand`, `vexpand` | Horizontal/vertical GTK expansion |
 | `textAlign`, `wrap` | Label alignment and wrapping |
-| `fontSize`, `fontWeight`, `fontFamily`, `fontStyle` | Typography; font size is in pixels |
+| `fontSize`, `fontWeight`, `fontFamily`, `fontStyle` | Typography; font size accepts pixels or an `em` string |
+| `letterSpacing` | Numeric pixels or a signed `em` length |
 | `color`, `background` | Native GTK color/background values, including theme colors |
 | `border`, `borderWidth`, `borderColor`, `borderStyle`, `borderRadius`, `boxShadow` | Native GTK appearance |
 | `columns`, `rows` | Grid track lists (also accepted as Grid props) |
@@ -217,8 +230,10 @@ extra room. Turn desktop snap-to-grid off for pixel-level outer sizing.
 This is a native GTK layout contract, not browser CSS. Maximum-size clipping,
 percent dimensions, flex wrapping, transforms, and absolute positioning are not
 implemented. Unsupported style keys fail validation rather than silently doing
-nothing. Use numeric logical pixels for structured lengths; existing GTK CSS can
-continue using GTK-supported units.
+nothing. Native layout lengths use numeric logical pixels. CSS-backed lengths
+(font size, padding/margins, borders/radii and CSS minima) also accept nonnegative
+`em` strings; `letterSpacing` may be negative. Existing GTK CSS can continue using
+GTK-supported units.
 
 ## Custom controller and events
 

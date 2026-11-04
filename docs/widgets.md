@@ -7,6 +7,9 @@ directory. See [Widget engine](widget-engine.md) for copying packages, exporting
 grid layouts, structured styles, state bindings, and event handlers. Existing
 custom Python components and GTK CSS remain supported.
 
+For CSS-free styling, use predefined classes such as `p-4 gap-3 rounded-xl text-accent`
+in a view or layout entry's `class_name`. See the [utility class guide](widget-utilities.md).
+
 The desktop is one transparent GTK layout. Its cards share a stylesheet, but each has
 its own component, position, width, height, text scale, props and on/off switch. The built-in cards are
 **Clock**, **Calendar**, **System stats** (actual CPU, memory and disk usage), **Notes**,
@@ -194,9 +197,10 @@ empty. You can also add it manually to `layout.json`:
 {"id": "now-playing", "component": "NowPlaying", "anchor": "center-right", "x": 32, "y": 0, "scale": 1}
 ```
 
-Then use the GUI/TUI switch or `trpstrata layout enable now-playing`. Its CSS classes are
-`.media-card`, `.media-title`, and `.media-detail`. It uses the usual shared palette,
-arrange mode and button input handling.
+Then use the GUI/TUI switch or `trpstrata layout enable now-playing`. Its view uses
+predefined utilities for typography, artwork sizing and control states; copy it with
+`trpstrata widget copy NowPlaying my_player` to customize those classes. It uses the
+usual shared palette, arrange mode and button input handling.
 
 ## Logtime
 
@@ -234,10 +238,11 @@ this entry to its `widgets` array, preserving the other entries:
 ```
 
 Optional props `{"username": "another-login", "goal": 196}` override global preferences
-for that one instance. Give multiple instances unique IDs. To change its look, edit your
-`widgets.css`; `.logtime-login`, `.logtime-hours`, `.logtime-percent`, `.progress-ring`,
-`.logtime-period` and `.logtime-card button` are available. Ring size uses `min-width` and
-`min-height` in `em`; its color uses `color`, so palette colors and scaling work together.
+for that one instance. Give multiple instances unique IDs. To change its look, copy the
+widget and edit its utility classes in `view.json`. Ring size uses `min-w-em-14` and
+`min-h-em-14`; colour uses `text-accent red:text-on-accent/76`, so palette colours and
+scaling work together. Optional CSS overrides can target the stable `#widget-logtime`
+card ID and the view's utility classes. Old `.logtime-*` hooks remain only for legacy views.
 
 ## CSS styling and scaling
 
@@ -299,7 +304,7 @@ Each card has a stable CSS ID, `#widget-<id>`, and the shared `.desktop-widget` 
 }
 
 /* Only the clock instance whose id is "clock" */
-#widget-clock .clock-time {
+#widget-clock .text-em-6 {
   font-family: monospace;
   font-size: 3.8em;
   color: @ws_accent;
@@ -311,10 +316,11 @@ Each card has a stable CSS ID, `#widget-<id>`, and the shared `.desktop-widget` 
 }
 ```
 
-Buttons use shadcn-inspired variants through `class_name`: `button-primary` for the
-strong action, `button-outline` for secondary actions, `button-secondary` for grouped
-items, and `button-ghost` for icon-only controls. They compose with widget-specific
-classes such as `media-control` or `dock-page`.
+Built-in buttons compose utilities such as `bg-accent text-on-accent`,
+`hover:bg-accent-soft`, and `red:disabled:text-on-accent/55`. They no longer depend on
+widget-specific classes or `button-*` presets. The older preset selectors remain
+compatible with personal/legacy views. See the [class reference](widget-utilities.md)
+for supported state, palette-opacity and GTK-subnode utilities.
 
 `@ws_paper`, `@ws_sheet`, `@ws_ink`, `@ws_muted`, `@ws_accent`, `@ws_accent_text`, `@ws_shadow` and `@ws_on_accent` follow the
 wallpaper palette. Semantic aliases such as `@color_background`, `@color_surface`, `@color_text`,

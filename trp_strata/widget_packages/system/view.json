@@ -1,17 +1,18 @@
 {
   "version": 1,
   "view": {
-    "type": "Column", "spacing": 14, "class_name": "system-card",
+    "type": "Column", "class_name": "gap-3.5",
     "children": [
-      {"type": "Text", "text": "SYSTEM", "class_name": "widget-label", "align": "start"},
+      {"type": "Text", "text": "SYSTEM", "class_name": "text-em-0.72 font-semibold tracking-widest text-muted self-start text-left"},
       {"repeat": {"$bind": "state.metrics"}, "key": "id", "template": {
-        "type": "Column", "spacing": 6,
+        "type": "Column", "class_name": "gap-1.5",
         "children": [
-          {"type": "Row", "spacing": 8, "children": [
-            {"type": "Text", "text": {"$bind": "item.id"}, "class_name": "metric-label", "align": "start", "expand": true},
-            {"type": "Text", "text": {"$bind": "item.text"}, "class_name": "metric-value", "key": "value"}
+          {"type": "Row", "class_name": "gap-2", "children": [
+            {"type": "Text", "text": {"$bind": "item.id"}, "class_name": "text-em-0.78 font-medium text-muted red:text-on-accent/76 self-start text-left grow"},
+            {"type": "Text", "text": {"$bind": "item.text"}, "class_name": "text-em-1.35 font-medium font-display tracking-tight text-primary red:text-on-accent", "key": "value"}
           ]},
-          {"type": "Progress", "value": {"$bind": "item.value"}, "class_name": "metric-progress", "visible": {"$bind": "item.available"}}
+          {"type": "Progress", "value": {"$bind": "item.value"}, "visible": {"$bind": "item.available"},
+           "class_name": "trough:min-h-em-0.35 trough:bg-primary/10 trough:border-0 trough:rounded-full trough:shadow-none progress:min-h-em-0.35 progress:bg-accent progress:border-0 progress:rounded-full progress:shadow-none red:trough:bg-on-accent/18 red:progress:bg-on-accent"}
         ]
       }}
     ]

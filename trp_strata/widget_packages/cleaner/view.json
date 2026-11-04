@@ -1,14 +1,22 @@
 {
   "version": 1,
   "view": {
-    "type": "Column", "spacing": 10, "class_name": "cleaner-card",
+    "type": "Column", "class_name": "gap-2.5 min-w-em-17",
     "children": [
-      {"type": "Text", "text": "HOME CLEANER", "class_name": "widget-label", "align": "start"},
-      {"type": "Text", "text": {"$bind": "state.status"}, "wrap": true, "max_width_chars": 36, "align": "start", "class_name": "widget-status", "key": "status"},
-      {"type": "Text", "text": "Close VS Code and Firefox first.", "wrap": true, "max_width_chars": 36, "align": "start", "class_name": "widget-hint"},
-      {"type": "Row", "spacing": 8, "class_name": "cleaner-actions", "children": [
-        {"type": "Button", "text": "Scan", "events": {"click": "scan"}, "sensitive": {"$bind": "state.enabled"}, "class_name": "button-outline", "expand": true, "key": "scan"},
-        {"type": "Button", "text": "Clean caches", "events": {"click": "clean"}, "sensitive": {"$bind": "state.enabled"}, "class_name": "button-primary", "expand": true, "key": "clean"}
+      {"type": "Text", "text": "HOME CLEANER", "class_name": "text-em-0.72 font-semibold tracking-widest text-muted self-start text-left"},
+      {"type": "Text", "text": {"$bind": "state.status"}, "max_width_chars": 36, "class_name": "text-em-0.8 text-muted red:text-on-accent/76 self-start text-left text-wrap", "key": "status"},
+      {"type": "Text", "text": "Close VS Code and Firefox first.", "max_width_chars": 36, "class_name": "text-em-0.76 text-muted red:text-on-accent/76 self-start text-left text-wrap"},
+      {"type": "Row", "class_name": "gap-2", "children": [
+        {"type": "Button", "text": "Scan", "events": {"click": "scan"}, "sensitive": {"$bind": "state.enabled"}, "key": "scan", "class_name": [
+          "grow bg-transparent border-primary/18 hover:bg-primary/6 hover:border-primary/24",
+          "light:bg-primary/5.5 light:border-primary/12 light:hover:bg-primary/10 light:hover:border-primary/24 light:active:bg-accent light:active:text-on-accent light:focus:border-accent light:disabled:bg-transparent light:disabled:text-muted",
+          "red:bg-on-accent/10 red:border-on-accent/22 red:text-inherit red:hover:bg-accent-hover red:hover:border-on-accent red:hover:text-on-accent red:active:bg-accent-hover red:active:border-on-accent red:active:text-on-accent red:disabled:bg-transparent red:disabled:border-on-accent/14 red:disabled:text-on-accent/55"
+        ]},
+        {"type": "Button", "text": "Clean caches", "events": {"click": "clean"}, "sensitive": {"$bind": "state.enabled"}, "key": "clean", "class_name": [
+          "grow bg-accent border-accent text-on-accent hover:bg-accent-soft hover:border-accent-soft active:bg-accent-strong active:border-accent-strong",
+          "light:bg-primary/5.5 light:border-primary/12 light:hover:bg-primary/10 light:hover:border-accent-soft light:active:bg-accent light:active:border-accent-strong light:active:text-on-accent light:focus:border-accent light:disabled:bg-transparent light:disabled:text-muted",
+          "red:bg-on-accent/10 red:border-on-accent/22 red:text-inherit red:hover:bg-accent-hover red:hover:border-on-accent red:hover:text-on-accent red:active:bg-accent-hover red:active:border-on-accent red:active:text-on-accent red:disabled:bg-transparent red:disabled:border-on-accent/14 red:disabled:text-on-accent/55"
+        ]}
       ]}
     ]
   }

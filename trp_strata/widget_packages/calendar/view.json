@@ -1,16 +1,20 @@
 {
   "version": 1,
   "view": {
-    "type": "Column", "spacing": 6, "class_name": "calendar-card",
+    "type": "Column", "class_name": "gap-1.5",
     "children": [
-      {"type": "Text", "text": {"$bind": "state.month"}, "class_name": "widget-label", "align": "start", "key": "month"},
-      {"type": "Text", "text": {"$bind": "state.day"}, "class_name": "calendar-day", "align": "start", "key": "day"},
+      {"type": "Text", "text": {"$bind": "state.month"}, "class_name": "text-em-0.72 font-semibold tracking-widest text-muted self-start text-left", "key": "month"},
+      {"type": "Text", "text": {"$bind": "state.day"}, "class_name": "text-em-4.35 font-medium font-display text-primary self-start text-left", "key": "day"},
       {
-        "type": "Grid", "columns": ["1fr", "1fr", "1fr", "1fr", "1fr", "1fr", "1fr"], "spacing": 4,
-        "class_name": "calendar-grid",
+        "type": "Grid", "class_name": "grid-cols-7 gap-1",
         "children": [
           {"repeat": {"$bind": "state.cells"}, "key": "id", "template": {
-            "type": "Text", "text": {"$bind": "item.text"}, "class_name": {"$bind": "item.class"}, "expand": true
+            "type": "Text", "text": {"$bind": "item.text"},
+            "class_name": ["text-em-0.74 min-w-em-1.75 min-h-em-1.75 grow", {
+              "font-semibold tracking-wide text-muted": {"$bind": "item.weekday"},
+              "bg-transparent text-muted": {"$bind": "item.ordinary"},
+              "bg-accent/14 text-primary border border-accent/42 rounded-em-0.45 font-semibold": {"$bind": "item.today"}
+            }]
           }}
         ]
       }

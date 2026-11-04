@@ -3,12 +3,21 @@ from functools import lru_cache
 from gi.repository import Gtk, Pango
 
 from .widget_styles import css
+from .widget_utilities import stylesheet
 
 
 @lru_cache(maxsize=256)
 def provider_for(source):
     provider = Gtk.CssProvider()
     provider.load_from_data(source.encode())
+    return provider
+
+
+@lru_cache(maxsize=8)
+def install_utilities(screen):
+    """Make the real utility CSS available even without a desktop host."""
+    provider = provider_for(stylesheet())
+    Gtk.StyleContext.add_provider_for_screen(screen, provider, Gtk.STYLE_PROVIDER_PRIORITY_USER + 3)
     return provider
 
 

@@ -20,6 +20,7 @@ from .gtk_renderer import Renderer  # noqa: E402
 from .glass import WallpaperGlass  # noqa: E402
 from .widget_engine import WidgetEngine, Context  # noqa: E402
 from .gtk_widget_styles import validate_tree  # noqa: E402
+from .widget_utilities import stylesheet as utility_stylesheet  # noqa: E402
 from .widget_watch import WidgetWatch  # noqa: E402
 
 log = logging.getLogger(__name__)
@@ -122,6 +123,8 @@ class DesktopWidgets:
         self.screen_handler = screen.connect("monitors-changed", lambda *_: self.position())
         self.module_monitor = WidgetWatch(storage.CUSTOM_WIDGETS, self.on_module_change)
         self.provider = None
+        self.utility_provider = None
+        self.custom_provider = None
         self.engine = WidgetEngine(defer=GLib.idle_add, repeat=GLib.timeout_add,
                                    cancel=GLib.source_remove,
                                    on_render=lambda ids: self.update(ids, refresh=False), validate=validate_tree)
@@ -152,7 +155,11 @@ class DesktopWidgets:
             colors = styles.DIRECTORY.joinpath("colors.css").read_text()
             font_css = widget_fonts.css(self.config["widget_font"])
             provider.load_from_data((fallback + theme + colors + styles.DIRECTORY.joinpath("widgets.css").read_text()
-                                     + font_css + custom).encode())
+                                     + font_css).encode())
+            utility_provider = Gtk.CssProvider()
+            utility_provider.load_from_data((utility_stylesheet() + widget_fonts.utility_css(self.config["widget_font"])).encode())
+            custom_provider = Gtk.CssProvider()
+            custom_provider.load_from_data(custom.encode())
         except (OSError, GLib.Error) as error:
             log.warning("Cannot reload widget CSS; keeping previous style: %s", error)
             if self.provider is None:
@@ -160,6 +167,9 @@ class DesktopWidgets:
                 provider.load_from_data((fallback + styles.DIRECTORY.joinpath("colors.css").read_text()
                                          + styles.DIRECTORY.joinpath("widgets.css").read_text()
                                          + widget_fonts.css(self.config["widget_font"])).encode())
+                utility_provider = Gtk.CssProvider()
+                utility_provider.load_from_data((utility_stylesheet() + widget_fonts.utility_css(self.config["widget_font"])).encode())
+                custom_provider = Gtk.CssProvider()
             else:
                 provider = None
         if provider is not None:
@@ -168,6 +178,13 @@ class DesktopWidgets:
             if self.provider:
                 Gtk.StyleContext.remove_provider_for_screen(screen, self.provider)
             self.provider = provider
+            for attribute, replacement, priority in (("utility_provider", utility_provider, 3),
+                                                      ("custom_provider", custom_provider, 4)):
+                Gtk.StyleContext.add_provider_for_screen(screen, replacement, Gtk.STYLE_PROVIDER_PRIORITY_USER + priority)
+                previous = getattr(self, attribute)
+                if previous is not None:
+                    Gtk.StyleContext.remove_provider_for_screen(screen, previous)
+                setattr(self, attribute, replacement)
         self.refresh_backdrop()
         self.update()
 
@@ -674,6 +691,9 @@ class DesktopWidgets:
         self.window.get_screen().disconnect(self.screen_handler)
         if self.provider:
             Gtk.StyleContext.remove_provider_for_screen(self.window.get_screen(), self.provider)
+        for provider in (self.utility_provider, self.custom_provider):
+            if provider is not None:
+                Gtk.StyleContext.remove_provider_for_screen(self.window.get_screen(), provider)
         self.engine.close()
         for frame in self.frames.values():
             frame.renderer.close()

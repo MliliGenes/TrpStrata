@@ -4,6 +4,7 @@ import inspect
 from . import components
 from .widget_engine import Controller, Definition
 from .widget_styles import validate as validate_style
+from .widget_utilities import utility_style
 
 COMPONENTS = {name: getattr(components, name) for name in (
     "Box", "Column", "Row", "Grid", "Text", "Image", "Icon", "Button", "Progress", "Ring", "Search", "Slider")}
@@ -30,6 +31,42 @@ def binding(value, scope):
     if isinstance(value, list):
         return [binding(item, scope) for item in value]
     return value
+
+
+def validate_classes(value, depth=0):
+    """Class fragments may be strings, bindings, or class-to-boolean maps."""
+    if depth > 64:
+        raise ValueError("class_name fragments are too deeply nested")
+    if isinstance(value, list):
+        for fragment in value:
+            validate_classes(fragment, depth + 1)
+    elif isinstance(value, dict):
+        if "$bind" in value:
+            if set(value) != {"$bind"} or not isinstance(value["$bind"], str):
+                raise ValueError("A class binding must contain only a $bind path")
+        else:
+            for names, condition in value.items():
+                utility_style(names)
+                if type(condition) is not bool:
+                    if not isinstance(condition, dict) or set(condition) != {"$bind"}:
+                        raise TypeError("Conditional classes need boolean values or bindings")
+                    validate_classes(condition, depth + 1)
+    else:
+        utility_style(value)
+
+
+def class_names(value, depth=0):
+    if depth > 64:
+        raise ValueError("class_name fragments are too deeply nested")
+    if isinstance(value, str):
+        return value
+    if isinstance(value, list):
+        return " ".join(class_names(fragment, depth + 1) for fragment in value)
+    if isinstance(value, dict):
+        if any(type(condition) is not bool for condition in value.values()):
+            raise TypeError("Conditional class bindings must resolve to booleans")
+        return " ".join(names for names, enabled in value.items() if enabled)
+    raise TypeError("class_name fragments must resolve to strings or boolean class maps")
 
 
 def validate_view(node, controller=Controller, path="view", depth=0):
@@ -86,6 +123,10 @@ def validate_view(node, controller=Controller, path="view", depth=0):
         validate_style(static)
     except (TypeError, ValueError) as error:
         raise ValueError(f"{path}.style: {error}") from error
+    try:
+        validate_classes(node.get("class_name", ""))
+    except (TypeError, ValueError) as error:
+        raise ValueError(f"{path}.class_name: {error}") from error
 
 
 def definition(document, controllers):
@@ -121,7 +162,9 @@ def build_view(node, ctx, scope=None, path="view"):
             return result
         name = node["type"]
         props = {key: binding(value, scope) for key, value in node.items()
-                 if key not in ("type", "children", "events")}
+                  if key not in ("type", "children", "events")}
+        if "class_name" in props:
+            props["class_name"] = class_names(props["class_name"])
         for event, target in node.get("events", {}).items():
             target = binding(target, scope)
             handler_name = target["handler"] if isinstance(target, dict) else target
