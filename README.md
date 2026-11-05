@@ -1,8 +1,10 @@
+
 # trpStrata
 
 Pick a wallpaper and your whole desktop takes its colours.
 
-[Watch the demo video](docs/demo.webm).
+## Watch the demo video
+[Watch the demo video](https://github.com/user-attachments/assets/01287e42-0381-4000-b07c-dd035d5a9233)
 
 - **Wallpapers:** pictures or looping videos, chosen from a folder of yours, with an optional new one every few hours.
 - **Colours:** apps, GNOME Terminal and the lock screen are recoloured to match, in light, dark, or auto (light by day, dark at night).
